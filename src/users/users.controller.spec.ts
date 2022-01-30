@@ -71,7 +71,8 @@ describe('UsersController', () => {
 
   describe('remove', () => {
     it('should call remove method of UsersService', () => {
-      const spy = jest.spyOn(usersService, 'remove').mockImplementation(() => { return });
+      const expected_result: boolean = true;
+      const spy = jest.spyOn(usersService, 'remove').mockImplementation(() => expected_result);
 
       usersController.remove(user_1.id.toString());
 

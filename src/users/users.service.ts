@@ -22,7 +22,7 @@ export class UsersService {
     return new User();
   }
 
-  remove(id: number): void {
-    return;
+  remove(id: number): boolean {
+    return true;
   }
 }
