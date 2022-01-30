@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CreateUserDto } from './dto/create-user.dto';
+import { ReadUserDto } from './dto/read-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { UsersController } from './users.controller';
@@ -26,7 +27,7 @@ describe('UsersController', () => {
 
   describe('create', () => {
     it('should return the data returned by the UsersService', () => {
-      const expected_result: User = addUser_1;
+      const expected_result: ReadUserDto = addUser_1;
       const userDto: CreateUserDto = addUser_1;
       const spy = jest.spyOn(usersService, 'create').mockImplementation(() => expected_result);
 
@@ -37,7 +38,7 @@ describe('UsersController', () => {
 
   describe('findAll', () => {
     it('should return the data returned by the UsersService', () => {
-      const expected_result: ReadonlyArray<User> = initialUserRepository;
+      const expected_result: ReadonlyArray<ReadUserDto> = initialUserRepository;
       const spy = jest.spyOn(usersService, 'findAll').mockImplementation(() => expected_result);
 
       expect(usersController.findAll()).toBe(expected_result);
@@ -47,7 +48,7 @@ describe('UsersController', () => {
 
   describe('findOne', () => {
     it('should return the data returned by the UsersService', () => {
-      const expected_result: User = user_1;
+      const expected_result: ReadUserDto = user_1;
       const spy = jest.spyOn(usersService, 'findOne').mockImplementation(() => expected_result);
 
       expect(usersController.findOne(user_1.id.toString())).toBe(expected_result);
@@ -57,11 +58,13 @@ describe('UsersController', () => {
 
   describe('update', () => {
     it('should call update method of UsersService', () => {
-      const expected_result: User = user_1;
+      const expected_result: ReadUserDto = user_1;
       expected_result.firstName = 'Updated';
       expected_result.lastName = 'Updated';
-      expected_result.password = 'Updated';
-      const userDto: UpdateUserDto = expected_result;
+      const userDto: UpdateUserDto = user_1;
+      userDto.firstName = 'Updated';
+      userDto.lastName = 'Updated';
+      userDto.password = 'Updated';
       const spy = jest.spyOn(usersService, 'update').mockImplementation(() => expected_result);
 
       expect(usersController.update(user_1.id.toString(), userDto)).toBe(expected_result);

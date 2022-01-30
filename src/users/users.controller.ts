@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
+import { ReadUserDto } from './dto/read-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
@@ -9,22 +10,22 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto): User {
+  create(@Body() createUserDto: CreateUserDto): ReadUserDto {
     return this.usersService.create(createUserDto);
   }
 
   @Get()
-  findAll(): ReadonlyArray<User> {
+  findAll(): ReadonlyArray<ReadUserDto> {
     return this.usersService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string): User {
+  findOne(@Param('id') id: string): ReadUserDto {
     return this.usersService.findOne(+id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto): User {
+  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto): ReadUserDto {
     return this.usersService.update(+id, updateUserDto);
   }
 
