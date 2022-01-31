@@ -1,4 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ReadUserDto } from './dto/read-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -6,8 +8,13 @@ import { User } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {
-  private readonly  logger = new Logger(UsersService.name);
-  
+  private readonly logger = new Logger(UsersService.name);
+
+  constructor(
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
+  ) { }
+
   create(createUserDto: CreateUserDto): ReadUserDto {
     const userWithoutPassword: CreateUserDto = createUserDto;
     userWithoutPassword.password = '*';
@@ -26,10 +33,10 @@ export class UsersService {
     return new ReadUserDto();
   }
 
-   findByEMail(email: string): ReadUserDto {
+  findByEMail(email: string): ReadUserDto {
     this.logger.log(`findByEMail: email = ${email}`);
     return new ReadUserDto();
-   }
+  }
 
   update(id: number, updateUserDto: UpdateUserDto): ReadUserDto {
     const userWithoutPassword: UpdateUserDto = updateUserDto;
