@@ -1,3 +1,4 @@
+import { HttpException, HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -21,7 +22,7 @@ describe('UsersController', () => {
         {
           provide: getRepositoryToken(User),
           useClass: UserRepositoryMock,
-        }
+        },
       ],
     }).compile();
 
@@ -34,59 +35,192 @@ describe('UsersController', () => {
   });
 
   describe('create', () => {
-    it('should return the data returned by the UsersService', () => {
-      const expected_result: ReadUserDto = addUser_1;
-      const userDto: CreateUserDto = addUser_1;
-      const spy = jest.spyOn(usersService, 'create').mockImplementation(() => expected_result);
+    it('should return the data returned by the UsersService', async () => {
+      const expected_user: ReadUserDto = {
+        id: addUser_1.id,
+        email: addUser_1.email,
+        firstName: addUser_1.firstName,
+        lastName: addUser_1.lastName,
+        username: addUser_1.username,
+      };
+      const userDto: CreateUserDto = {
+        email: addUser_1.email,
+        password: addUser_1.password,
+        firstName: addUser_1.firstName,
+        lastName: addUser_1.lastName,
+        username: addUser_1.username,
+      };
+      const spy = jest
+        .spyOn(usersService, 'create')
+        .mockImplementation(
+          (): Promise<ReadUserDto> => Promise.resolve(expected_user),
+        );
 
-      expect(usersController.create(userDto)).toBe(expected_result);
+      expect(await usersController.create(userDto)).toBe(expected_user);
+      expect(spy).toHaveBeenCalled();
+    });
+
+    it('should return an HTTP exception on invalid data', async () => {
+      // not really invalid, but the service mock throws
+      const userDto: CreateUserDto = {
+        email: addUser_1.email,
+        password: addUser_1.password,
+        firstName: addUser_1.firstName,
+        lastName: addUser_1.lastName,
+        username: addUser_1.username,
+      };
+      const errorMessage = 'Service error message';
+      const spy = jest.spyOn(usersService, 'create').mockImplementation(() => {
+        throw new Error(errorMessage);
+      });
+
+      try {
+        await usersController.create(userDto);
+        // When service throws, the controll must also throw, so the next line must not be reached
+        expect(true).toBe(false.valueOf);
+      } catch (e) {
+        expect(e.status).toBe(HttpStatus.BAD_REQUEST);
+        expect(e.message).toBe(errorMessage);
+        expect(e instanceof HttpException).toBeTruthy();
+      }
       expect(spy).toHaveBeenCalled();
     });
   });
 
   describe('findAll', () => {
-    it('should return the data returned by the UsersService', () => {
-      const expected_result: ReadonlyArray<ReadUserDto> = initialUserRepository;
-      const spy = jest.spyOn(usersService, 'findAll').mockImplementation(() => expected_result);
+    it('should return the data returned by the UsersService', async () => {
+      const expected_users: ReadUserDto[] = [].concat(initialUserRepository);
+      const spy = jest
+        .spyOn(usersService, 'findAll')
+        .mockImplementation(
+          (): Promise<ReadUserDto[]> => Promise.resolve(expected_users),
+        );
 
-      expect(usersController.findAll()).toBe(expected_result);
+      expect(await usersController.findAll()).toBe(expected_users);
       expect(spy).toHaveBeenCalled();
     });
   });
 
-  describe('findOne', () => {
-    it('should return the data returned by the UsersService', () => {
-      const expected_result: ReadUserDto = user_1;
-      const spy = jest.spyOn(usersService, 'findOne').mockImplementation(() => expected_result);
+  describe('findByID', () => {
+    it('should return the data returned by the UsersService', async () => {
+      const expected_user: ReadUserDto = {
+        id: user_1.id,
+        email: user_1.email,
+        firstName: user_1.firstName,
+        lastName: user_1.lastName,
+        username: user_1.username,
+      };
+      const spy = jest
+        .spyOn(usersService, 'findByID')
+        .mockImplementation(
+          (): Promise<ReadUserDto> => Promise.resolve(expected_user),
+        );
 
-      expect(usersController.findOne(user_1.id.toString())).toBe(expected_result);
+      expect(await usersController.findByID(user_1.id.toString())).toBe(
+        expected_user,
+      );
+      expect(spy).toHaveBeenCalled();
+    });
+  });
+
+  describe('findByEmail', () => {
+    it('should return the data returned by the UsersService', async () => {
+      const expected_user: ReadUserDto = {
+        id: user_1.id,
+        email: user_1.email,
+        firstName: user_1.firstName,
+        lastName: user_1.lastName,
+        username: user_1.username,
+      };
+      const spy = jest
+        .spyOn(usersService, 'findByEmail')
+        .mockImplementation(
+          (): Promise<ReadUserDto> => Promise.resolve(expected_user),
+        );
+
+      expect(await usersController.findByEmail(user_1.id.toString())).toBe(
+        expected_user,
+      );
       expect(spy).toHaveBeenCalled();
     });
   });
 
   describe('update', () => {
-    it('should call update method of UsersService', () => {
-      const expected_result: ReadUserDto = user_1;
-      expected_result.firstName = 'Updated';
-      expected_result.lastName = 'Updated';
-      const userDto: UpdateUserDto = user_1;
-      userDto.firstName = 'Updated';
-      userDto.lastName = 'Updated';
-      userDto.password = 'Updated';
-      const spy = jest.spyOn(usersService, 'update').mockImplementation(() => expected_result);
+    it('should call update method of UsersService', async () => {
+      const expected_user: ReadUserDto = {
+        id: user_1.id,
+        email: user_1.email,
+        firstName: 'Updated',
+        lastName: 'Updated',
+        username: user_1.username,
+      };
+      const userDto: UpdateUserDto = {
+        firstName: 'Updated',
+        lastName: 'Updated',
+        password: 'Updated',
+      };
+      const spy = jest
+        .spyOn(usersService, 'update')
+        .mockImplementation(
+          (): Promise<ReadUserDto> => Promise.resolve(expected_user),
+        );
 
-      expect(usersController.update(user_1.id.toString(), userDto)).toBe(expected_result);
+      expect(await usersController.update(user_1.id.toString(), userDto)).toBe(
+        expected_user,
+      );
+      expect(spy).toHaveBeenCalled();
+    });
+
+    it('should return an HTTP exception if the user ID does not exist', async () => {
+      const userDto: UpdateUserDto = {
+        firstName: 'Updated',
+        lastName: 'Updated',
+        password: 'Updated',
+      };
+      const errorMessage = 'No user to update';
+      const spy = jest.spyOn(usersService, 'update').mockImplementation(() => {
+        return Promise.resolve(undefined);
+      });
+
+      try {
+        await usersController.update('4711', userDto);
+        // Expecting the controller to throw, so the next line must not be reached
+        expect(true).toBe(false.valueOf);
+      } catch (e) {
+        expect(e.status).toBe(HttpStatus.NO_CONTENT);
+        expect(e.message).toBe(errorMessage);
+        expect(e instanceof HttpException).toBeTruthy();
+      }
       expect(spy).toHaveBeenCalled();
     });
   });
 
   describe('remove', () => {
     it('should call remove method of UsersService', () => {
-      const expected_result: boolean = true;
-      const spy = jest.spyOn(usersService, 'remove').mockImplementation(() => expected_result);
+      const spy = jest.spyOn(usersService, 'remove').mockImplementation(() => {
+        return Promise.resolve(undefined);
+      });
 
       usersController.remove(user_1.id.toString());
 
+      expect(spy).toHaveBeenCalled();
+    });
+
+    it('should return an HTTP exception if the user ID does not exist', async () => {
+      const errorMessage = 'User does not exist';
+      const spy = jest.spyOn(usersService, 'remove').mockImplementation(() => {
+        throw new Error(errorMessage);
+      });
+
+      try {
+        await usersController.remove('4711');
+        // Expecting the controller to throw, so the next line must not be reached
+        expect(true).toBe(false.valueOf);
+      } catch (e) {
+        expect(e.status).toBe(HttpStatus.NO_CONTENT);
+        expect(e.message).toBe(errorMessage);
+        expect(e instanceof HttpException).toBeTruthy();
+      }
       expect(spy).toHaveBeenCalled();
     });
   });

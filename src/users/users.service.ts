@@ -13,40 +13,153 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
-  ) { }
+  ) {}
 
-  create(createUserDto: CreateUserDto): ReadUserDto {
-    const userWithoutPassword: CreateUserDto = createUserDto;
-    userWithoutPassword.password = '*';
-    this.logger.log(`create: createUserDto = ${userWithoutPassword}`);
-    return new User();
+  async create(createUserDto: CreateUserDto): Promise<ReadUserDto> | undefined {
+    const userWithoutPassword: CreateUserDto = {
+      email: createUserDto.email,
+      password: '*',
+      firstName: createUserDto.firstName,
+      lastName: createUserDto.lastName,
+      username: createUserDto.username,
+    };
+    this.logger.log(
+      `create: createUserDto = ${JSON.stringify(userWithoutPassword)}`,
+    );
+
+    // check if all required data was provided
+    if (
+      createUserDto.username === '' ||
+      createUserDto.password === '' ||
+      createUserDto.firstName === '' ||
+      createUserDto.lastName === '' ||
+      createUserDto.email === ''
+    ) {
+      this.logger.warn(`create: User data incomplete`);
+      throw new Error(`Not all required attributes provided`);
+    }
+
+    // check if user with same e-Mail address does not already exist
+    if ((await this.findByEmail(createUserDto.email)) !== undefined) {
+      this.logger.warn(
+        `create: User with e-Mail ${createUserDto.email} address already exists!`,
+      );
+      throw new Error(`User with email already exists`);
+    }
+    const user: User = await this.usersRepository.save(createUserDto);
+    if (user !== undefined) {
+      const foundUser: ReadUserDto = {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        username: user.username,
+      };
+      return Promise.resolve(foundUser);
+    } else {
+      return Promise.resolve(undefined);
+    }
   }
 
-  findAll(): ReadonlyArray<ReadUserDto> {
+  async findAll(): Promise<ReadUserDto[]> {
     this.logger.log(`findAll`);
-    let result: ReadonlyArray<ReadUserDto> = [];
-    return result;
+    const user: User[] = await this.usersRepository.find();
+    let result: ReadUserDto[] = [];
+    user.forEach((user) => {
+      const readUserDto: ReadUserDto = {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        username: user.username,
+      };
+      result = result.concat(readUserDto);
+    });
+    return Promise.resolve(result);
   }
 
-  findOne(id: number): ReadUserDto {
+  async findByID(id: number): Promise<ReadUserDto | undefined> {
     this.logger.log(`findOne: id = ${id}`);
-    return new ReadUserDto();
+    const user: User = await this.usersRepository.findOne({
+      where: { id: id },
+    });
+
+    if (user !== undefined) {
+      const foundUser: ReadUserDto = {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        username: user.username,
+      };
+      return Promise.resolve(foundUser);
+    } else {
+      return Promise.resolve(undefined);
+    }
   }
 
-  findByEMail(email: string): ReadUserDto {
+  async findByEmail(email: string): Promise<ReadUserDto | undefined> {
     this.logger.log(`findByEMail: email = ${email}`);
-    return new ReadUserDto();
+    const user: User = await this.usersRepository.findOne({
+      where: { email: email },
+    });
+
+    if (user !== undefined) {
+      const foundUser: ReadUserDto = {
+        id: user.id,
+        username: user.username,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+      };
+      return Promise.resolve(foundUser);
+    } else {
+      return Promise.resolve(undefined);
+    }
   }
 
-  update(id: number, updateUserDto: UpdateUserDto): ReadUserDto {
-    const userWithoutPassword: UpdateUserDto = updateUserDto;
-    userWithoutPassword.password = '*';
-    this.logger.log(`update: id = ${id}, updateUserDto = ${userWithoutPassword} `);
-    return new ReadUserDto();
+  async update(
+    id: number,
+    updateUserDto: UpdateUserDto,
+  ): Promise<ReadUserDto | undefined> {
+    const userWithoutPassword: UpdateUserDto = {
+      ...updateUserDto,
+      password: '*',
+    };
+    this.logger.log(
+      `update: id = ${id}, updateUserDto = ${userWithoutPassword} `,
+    );
+
+    const user: User = await this.usersRepository.findOne({ where: { id } });
+
+    if (user !== undefined) {
+      const result = await this.usersRepository.save({
+        ...user, // existing fields
+        ...updateUserDto, // updated fields
+      });
+      const updatedUser: ReadUserDto = {
+        id: result.id,
+        email: result.email,
+        firstName: result.firstName,
+        lastName: result.lastName,
+        username: result.username,
+      };
+      return Promise.resolve(updatedUser);
+    } else {
+      return Promise.resolve(undefined);
+    }
   }
 
-  remove(id: number): void {
+  async remove(id: number): Promise<void> {
     this.logger.log(`remove: id = ${id}`);
-    return;
+    const user: User = await this.usersRepository.findOne({ where: { id } });
+
+    if (user !== undefined) {
+      await this.usersRepository.delete(id);
+      // ToDo handle response from delete and only resolve in case of success
+      return Promise.resolve(undefined);
+    } else {
+      throw new Error(`User with ID ${id} does not exist`);
+    }
   }
 }
