@@ -130,7 +130,7 @@ export class UsersService {
       password: '*',
     };
     this.logger.log(
-      `update: id = ${id}, updateUserDto = ${userWithoutPassword} `,
+      `update: id = ${id}, updateUserDto = ${JSON.stringify(userWithoutPassword)} `,
     );
 
     const user: User = await this.usersRepository.findOne({ where: { id } });
