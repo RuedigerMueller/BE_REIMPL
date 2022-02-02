@@ -57,6 +57,7 @@ export class UsersService {
       };
       return Promise.resolve(foundUser);
     } else {
+      this.logger.log('User creation failed.')
       return Promise.resolve(undefined);
     }
   }
@@ -94,6 +95,7 @@ export class UsersService {
       };
       return Promise.resolve(foundUser);
     } else {
+      this.logger.log(`User with id = ${id} not found.`);
       return Promise.resolve(undefined);
     }
   }
@@ -114,6 +116,7 @@ export class UsersService {
       };
       return Promise.resolve(foundUser);
     } else {
+      this.logger.log(`User with email = ${email} not found.`);
       return Promise.resolve(undefined);
     }
   }
@@ -146,6 +149,8 @@ export class UsersService {
       };
       return Promise.resolve(updatedUser);
     } else {
+      this.logger.log(`Update not executed as user with id ${id} does not exist.`,
+      );
       return Promise.resolve(undefined);
     }
   }
@@ -159,6 +164,7 @@ export class UsersService {
       // ToDo handle response from delete and only resolve in case of success
       return Promise.resolve(undefined);
     } else {
+      this.logger.log(`User with ID ${id} does not exist`);
       throw new Error(`User with ID ${id} does not exist`);
     }
   }

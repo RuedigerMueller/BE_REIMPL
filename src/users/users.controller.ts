@@ -63,9 +63,9 @@ export class UsersController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string): Promise<void> {
+  async remove(@Param('id') id: string): Promise<void> {
     try {
-      return this.usersService.remove(+id);
+      return await this.usersService.remove(+id);
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.NO_CONTENT);
     }
