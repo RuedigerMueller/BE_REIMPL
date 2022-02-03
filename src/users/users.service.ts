@@ -13,7 +13,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
-  ) { }
+  ) {}
 
   async create(createUserDto: CreateUserDto): Promise<ReadUserDto> | undefined {
     const userWithoutPassword: CreateUserDto = {
@@ -57,7 +57,7 @@ export class UsersService {
       };
       return Promise.resolve(foundUser);
     } else {
-      this.logger.log('User creation failed.')
+      this.logger.log('User creation failed.');
       return Promise.resolve(undefined);
     }
   }
@@ -130,7 +130,9 @@ export class UsersService {
       password: '*',
     };
     this.logger.log(
-      `update: id = ${id}, updateUserDto = ${JSON.stringify(userWithoutPassword)} `,
+      `update: id = ${id}, updateUserDto = ${JSON.stringify(
+        userWithoutPassword,
+      )} `,
     );
 
     const user: User = await this.usersRepository.findOne({
@@ -151,7 +153,8 @@ export class UsersService {
       };
       return Promise.resolve(updatedUser);
     } else {
-      this.logger.log(`Update not executed as user with id ${id} does not exist.`,
+      this.logger.log(
+        `Update not executed as user with id ${id} does not exist.`,
       );
       return Promise.resolve(undefined);
     }
@@ -159,7 +162,7 @@ export class UsersService {
 
   async remove(id: number): Promise<void> {
     this.logger.log(`remove: id = ${id}`);
-    
+
     const result: DeleteResult = await this.usersRepository.delete(id);
     if (result.affected === 1) {
       return Promise.resolve(undefined);

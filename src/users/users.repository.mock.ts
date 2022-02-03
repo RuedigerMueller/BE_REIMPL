@@ -50,9 +50,9 @@ export class UserRepositoryMock {
   async delete(id: number): Promise<DeleteResult> {
     const result: DeleteResult = {
       raw: [],
-      affected: 0
+      affected: 0,
     };
-    
+
     if (this.userRepository.find((user) => user.id === id) !== undefined) {
       result.affected = 1;
     }
