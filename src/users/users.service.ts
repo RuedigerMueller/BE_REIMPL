@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DeleteResult, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ReadUserDto } from './dto/read-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -13,7 +13,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
-  ) {}
+  ) { }
 
   async create(createUserDto: CreateUserDto): Promise<ReadUserDto> | undefined {
     const userWithoutPassword: CreateUserDto = {
@@ -133,7 +133,9 @@ export class UsersService {
       `update: id = ${id}, updateUserDto = ${JSON.stringify(userWithoutPassword)} `,
     );
 
-    const user: User = await this.usersRepository.findOne({ where: { id } });
+    const user: User = await this.usersRepository.findOne({
+      where: { id: id },
+    });
 
     if (user !== undefined) {
       const result = await this.usersRepository.save({
@@ -157,15 +159,13 @@ export class UsersService {
 
   async remove(id: number): Promise<void> {
     this.logger.log(`remove: id = ${id}`);
-    const user: User = await this.usersRepository.findOne({ where: { id } });
-
-    if (user !== undefined) {
-      await this.usersRepository.delete(id);
-      // ToDo handle response from delete and only resolve in case of success
+    
+    const result: DeleteResult = await this.usersRepository.delete(id);
+    if (result.affected === 1) {
       return Promise.resolve(undefined);
     } else {
-      this.logger.log(`User with ID ${id} does not exist`);
-      throw new Error(`User with ID ${id} does not exist`);
+      this.logger.log(`User with ID ${id} was not deleted.`);
+      throw new Error(`User with ID ${id} was not deleted.`);
     }
   }
 }

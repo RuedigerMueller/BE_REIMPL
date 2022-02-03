@@ -1,3 +1,4 @@
+import { DeleteResult } from 'typeorm';
 import { User } from './entities/user.entity';
 import { addUser_1, initialUserRepository } from './users.testdata';
 
@@ -46,7 +47,15 @@ export class UserRepositoryMock {
     return Promise.resolve(result);
   }
 
-  async delete(): Promise<void[]> {
-    return Promise.resolve(undefined);
+  async delete(id: number): Promise<DeleteResult> {
+    const result: DeleteResult = {
+      raw: [],
+      affected: 0
+    };
+    
+    if (this.userRepository.find((user) => user.id === id) !== undefined) {
+      result.affected = 1;
+    }
+    return Promise.resolve(result);
   }
 }
