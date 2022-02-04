@@ -1,32 +1,113 @@
-import { INestApplication } from '@nestjs/common';
+import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { User } from 'src/users/entities/user.entity';
+import {
+  addUser_1,
+  initialUserRepository,
+  user_1,
+} from './../src/users/users.testdata';
 import * as request from 'supertest';
+import { Connection, Repository } from 'typeorm';
 import { AppModule } from './../src/app.module';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
+  let repository: Repository<User>;
+  let connection: Connection;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    repository = moduleFixture.get('UserRepository');
+    connection = repository.manager.connection;
+    // dropBeforeSync: If set to true then it drops the database with all its tables and data
+    await connection.synchronize(true);
+
+    const insertQueries = []
+    let insertSQL = '';
+    initialUserRepository.forEach((user) => {
+      insertSQL = `INSERT INTO User (id, username, password, firstname, lastname, email) VALUES (NULL, '${user.username}', '${user.password}', '${user.firstName}', '${user.lastName}', '${user.email}');`;
+      insertQueries.push(connection.query(insertSQL));
+    });
+    await Promise.all(insertQueries);
+
     await app.init();
   });
 
-  // https://circleci.com/blog/relational-db-testing/
+  afterEach(async () => {
+    const deleteTableSQL = 'DELETE FROM User WHERE ID > 3';
+    await connection.query(deleteTableSQL);
+  });
 
-  it('/users (Post)', () => {
-    return request(app.getHttpServer())
+  afterAll(async () => {
+    const dropTableSQL = 'DROP TABLE IF EXISTS `User`';
+    await connection.query(dropTableSQL);
+    await connection.close();
+  })
+
+  it('/users (Post)', async () => { 
+    const resp = await request(app.getHttpServer())
       .post('/users')
       .send({
-        "username": "john",
-        "password": "changeme",
-        "firstName": "John",
-        "lastName": "Miller",
-        "email": "john@example.com"
-      })
-      .expect(201)
+        username: addUser_1.username,
+        password: addUser_1.password,
+        firstName: addUser_1.firstName,
+        lastName: addUser_1.lastName,
+        email: addUser_1.email
+      });
+    expect(resp.statusCode).toBe(HttpStatus.CREATED);
+    expect(resp.body.id).toBeDefined();
+    expect(resp.body.username).toBe(addUser_1.username);
+    expect(resp.body.firstName).toBe(addUser_1.firstName);
+    expect(resp.body.lastName).toBe(addUser_1.lastName);
+    expect(resp.body.email).toBe(addUser_1.email);
+    expect(resp.body.password).toBeUndefined;
+  });
+
+  it('/users (Get)', async () => { 
+   const resp = await request(app.getHttpServer())
+      .get('/users')
+  
+    expect(resp.statusCode).toBe(HttpStatus.OK);
+   
+    const expected_result = [
+      {
+          id: 1,
+          email: initialUserRepository[0].email,
+          firstName: initialUserRepository[0].firstName,
+          lastName: initialUserRepository[0].lastName,
+          username: initialUserRepository[0].username
+      },
+      {
+          id: 2,
+          email: initialUserRepository[1].email,
+          firstName: initialUserRepository[1].firstName,
+          lastName: initialUserRepository[1].lastName,
+          username: initialUserRepository[1].username
+      },
+      {
+          id: 3,
+          email: initialUserRepository[2].email,
+          firstName: initialUserRepository[2].firstName,
+          lastName: initialUserRepository[2].lastName,
+          username: initialUserRepository[2].username
+      }
+    ];
+   expect(resp.body).toEqual(expected_result);
+  });
+
+  it('/users/1 (Get)', async () => { 
+    const resp = await request(app.getHttpServer())
+      .get('/users/1');
+    
+    expect(resp.statusCode).toBe(HttpStatus.OK);
+    expect(resp.body.username).toBe(initialUserRepository[0].username);
+    expect(resp.body.firstName).toBe(initialUserRepository[0].firstName);
+    expect(resp.body.lastName).toBe(initialUserRepository[0].lastName);
+    expect(resp.body.email).toBe(initialUserRepository[0].email);
+    expect(resp.body.password).toBeUndefined();
   });
 });

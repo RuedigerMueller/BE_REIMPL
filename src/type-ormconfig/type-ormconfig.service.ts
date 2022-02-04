@@ -67,7 +67,9 @@ export class TypeORMConfigService implements TypeOrmOptionsFactory {
     // if not running in Cloud Foundry or on Heroku take the connectionOpions as is which means
     // 1) from ENV variables => used when running in the Cloud
     // 2) from ormconfig.json when running locally
-    logger.log('Neither running on Cloud Foundry or Heroku & not running E2E tests locally');
+    logger.log(
+      'Neither running on Cloud Foundry or Heroku & not running E2E tests locally',
+    );
     return await getConnectionOptions();
   }
 }

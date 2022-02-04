@@ -111,7 +111,7 @@ describe('UsersService', () => {
     });
 
     it('should not find a user with a not existing ID', async () => {
-      expect(await userService.findByID(4711)).toBeUndefined();
+      await expect(userService.findByID(4711)).rejects.toThrow();
     });
   });
 

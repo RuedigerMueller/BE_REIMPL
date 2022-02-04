@@ -81,9 +81,7 @@ export class UsersService {
 
   async findByID(id: number): Promise<ReadUserDto | undefined> {
     this.logger.log(`findOne: id = ${id}`);
-    const user: User = await this.usersRepository.findOne({
-      where: { id: id },
-    });
+    const user: User = await this.usersRepository.findOne({where : {id: id}});
 
     if (user !== undefined) {
       const foundUser: ReadUserDto = {
@@ -96,7 +94,8 @@ export class UsersService {
       return Promise.resolve(foundUser);
     } else {
       this.logger.log(`User with id = ${id} not found.`);
-      return Promise.resolve(undefined);
+      //return Promise.resolve(undefined);
+      throw new Error(`User with id = ${id}  not found.`);
     }
   }
 

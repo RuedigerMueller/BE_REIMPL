@@ -24,8 +24,7 @@ export class UsersController {
     @Body() createUserDto: CreateUserDto,
   ): Promise<ReadUserDto | undefined> {
     try {
-      const user: ReadUserDto = await this.usersService.create(createUserDto);
-      return user;
+      return await this.usersService.create(createUserDto);
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.BAD_REQUEST);
     }
@@ -42,8 +41,12 @@ export class UsersController {
   }
 
   @Get(':id')
-  findByID(@Param('id') id: string): Promise<ReadUserDto | undefined> {
-    return this.usersService.findByID(+id);
+  async findByID(@Param('id') id: string): Promise<ReadUserDto | undefined> {
+    try {
+      return await this.usersService.findByID(+id);
+    } catch (e) {
+      throw new HttpException(e.message, HttpStatus.NOT_FOUND);
+    }
   }
 
   @Patch(':id')
