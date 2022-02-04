@@ -1,6 +1,6 @@
 {
     "type": "sqlite",
-    "database": "./test.db",
+    "database": "test.db",
     "entities": [
         "dist/**/*.entity{.ts,.js}"
     ],
