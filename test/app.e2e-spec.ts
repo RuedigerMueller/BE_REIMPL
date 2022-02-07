@@ -1,5 +1,6 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { UpdateUserDto } from 'src/users/dto/update-user.dto';
 import { User } from 'src/users/entities/user.entity';
 import * as request from 'supertest';
 import { Connection, Repository } from 'typeorm';
@@ -104,5 +105,55 @@ describe('AppController (e2e)', () => {
     expect(resp.body.lastName).toBe(initialUserRepository[0].lastName);
     expect(resp.body.email).toBe(initialUserRepository[0].email);
     expect(resp.body.password).toBeUndefined();
+  });
+
+  it('/users/email (Get)', async () => {
+    const resp = await request(app.getHttpServer()).get(`/users/email/?email=${initialUserRepository[0].email}`);
+
+    expect(resp.statusCode).toBe(HttpStatus.OK);
+    expect(resp.body.username).toBe(initialUserRepository[0].username);
+    expect(resp.body.firstName).toBe(initialUserRepository[0].firstName);
+    expect(resp.body.lastName).toBe(initialUserRepository[0].lastName);
+    expect(resp.body.email).toBe(initialUserRepository[0].email);
+    expect(resp.body.password).toBeUndefined();
+  });
+
+  it('/users/1 (Patch)', async () => {
+    const updateUserResponse = await request(app.getHttpServer()).post('/users').send({
+      username: addUser_1.username,
+      password: addUser_1.password,
+      firstName: addUser_1.firstName,
+      lastName: addUser_1.lastName,
+      email: addUser_1.email,
+    });
+    const updateUserDto: UpdateUserDto = {
+      firstName: 'updated',
+      lastName: 'updated',
+      password: 'update'
+    }
+
+    const resp = await request(app.getHttpServer()).patch(`/users/${updateUserResponse.body.id}`).send(updateUserDto);
+
+    expect(resp.statusCode).toBe(HttpStatus.OK);
+    expect(resp.body.username).toBe(addUser_1.username);
+    expect(resp.body.firstName).toBe('updated');
+    expect(resp.body.lastName).toBe('updated');
+    expect(resp.body.email).toBe(addUser_1.email);
+    expect(resp.body.password).toBeUndefined();
+  });
+
+  it('/users/1 (Delete)', async () => {
+    const createUserResponse = await request(app.getHttpServer()).post('/users').send({
+      username: addUser_1.username,
+      password: addUser_1.password,
+      firstName: addUser_1.firstName,
+      lastName: addUser_1.lastName,
+      email: addUser_1.email,
+    });
+
+    const resp = await request(app.getHttpServer()).delete(`/users/${createUserResponse.body.id}`);
+
+    expect(resp.statusCode).toBe(HttpStatus.OK);
+    expect(resp.body).toStrictEqual({});
   });
 });
