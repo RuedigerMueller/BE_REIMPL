@@ -23,11 +23,30 @@ export class UsersService {
       lastName: createUserDto.lastName,
       username: createUserDto.username,
     };
-    this.logger.log(
-      `create: createUserDto = ${JSON.stringify(userWithoutPassword)}`,
-    );
+    this.logger.log(`createUserDto = ${JSON.stringify(userWithoutPassword)}`);
 
     // check if all required data was provided
+    await this.checkCreateDataValid(createUserDto);
+
+    try {
+      const user: User = await this.usersRepository.save(createUserDto);
+      if (user !== undefined) {
+        const foundUser: ReadUserDto = {
+          id: user.id,
+          email: user.email,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          username: user.username,
+        };
+        return Promise.resolve(foundUser);
+      }
+    } catch {
+      this.logger.log('User creation failed');
+      throw new Error(`User creation failed`);
+    }
+  }
+
+  private async checkCreateDataValid(createUserDto: CreateUserDto) {
     if (
       createUserDto.username === '' ||
       createUserDto.password === '' ||
@@ -35,30 +54,21 @@ export class UsersService {
       createUserDto.lastName === '' ||
       createUserDto.email === ''
     ) {
-      this.logger.warn(`create: User data incomplete`);
-      throw new Error(`Not all required attributes provided`);
+      this.logger.warn(`User data incomplete`);
+      throw new Error(`User data incomplet`);
     }
 
-    // check if user with same e-Mail address does not already exist
-    if ((await this.findByEmail(createUserDto.email)) !== undefined) {
-      this.logger.warn(
-        `create: User with e-Mail ${createUserDto.email} address already exists!`,
-      );
-      throw new Error(`User with email already exists`);
+    let eMailAvailable = false;
+    try {
+      await this.findByEmail(createUserDto.email);
+      eMailAvailable = false;
+    } catch {
+      eMailAvailable = true;
     }
-    const user: User = await this.usersRepository.save(createUserDto);
-    if (user !== undefined) {
-      const foundUser: ReadUserDto = {
-        id: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        username: user.username,
-      };
-      return Promise.resolve(foundUser);
-    } else {
-      this.logger.log('User creation failed.');
-      return Promise.resolve(undefined);
+
+    if (eMailAvailable === false) {
+      this.logger.warn(`User e-mail already taken`);
+      throw new Error(`User e-mail already taken`);
     }
   }
 
@@ -81,7 +91,9 @@ export class UsersService {
 
   async findByID(id: number): Promise<ReadUserDto | undefined> {
     this.logger.log(`findOne: id = ${id}`);
-    const user: User = await this.usersRepository.findOne({where : {id: id}});
+    const user: User = await this.usersRepository.findOne({
+      where: { id: id },
+    });
 
     if (user !== undefined) {
       const foundUser: ReadUserDto = {
@@ -93,9 +105,8 @@ export class UsersService {
       };
       return Promise.resolve(foundUser);
     } else {
-      this.logger.log(`User with id = ${id} not found.`);
-      //return Promise.resolve(undefined);
-      throw new Error(`User with id = ${id}  not found.`);
+      this.logger.log(`User with id = ${id} not found`);
+      throw new Error(`User with id = ${id} not found`);
     }
   }
 
@@ -115,8 +126,8 @@ export class UsersService {
       };
       return Promise.resolve(foundUser);
     } else {
-      this.logger.log(`User with email = ${email} not found.`);
-      return Promise.resolve(undefined);
+      this.logger.log(`User with email = ${email} not found`);
+      throw new Error(`User with email = ${email} not found`);
     }
   }
 
@@ -153,9 +164,11 @@ export class UsersService {
       return Promise.resolve(updatedUser);
     } else {
       this.logger.log(
-        `Update not executed as user with id ${id} does not exist.`,
+        `Update not executed as user with id ${id} does not exist`,
       );
-      return Promise.resolve(undefined);
+      throw new Error(
+        `Update not executed as user with id ${id} does not exist`,
+      );
     }
   }
 
@@ -166,8 +179,8 @@ export class UsersService {
     if (result.affected === 1) {
       return Promise.resolve(undefined);
     } else {
-      this.logger.log(`User with ID ${id} was not deleted.`);
-      throw new Error(`User with ID ${id} was not deleted.`);
+      this.logger.log(`User with ID ${id} was not deleted`);
+      throw new Error(`User with ID ${id} was not deleted`);
     }
   }
 }

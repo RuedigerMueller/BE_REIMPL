@@ -130,7 +130,7 @@ describe('UsersService', () => {
     });
 
     it('should not find a user with a not existing ID', async () => {
-      expect(await userService.findByEmail('x.y@a.com')).toBeUndefined();
+      await expect(userService.findByEmail('x.y@a.com')).rejects.toThrow();
     });
   });
 
@@ -176,7 +176,7 @@ describe('UsersService', () => {
         lastName: 'Updated',
         password: 'Updated',
       };
-      await expect(userService.update(4711, userDto)).resolves.toBeUndefined();
+      await expect(userService.update(4711, userDto)).rejects.toThrow();
     });
   });
 

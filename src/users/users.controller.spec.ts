@@ -99,6 +99,26 @@ describe('UsersController', () => {
       expect(await usersController.findAll()).toBe(expected_users);
       expect(spy).toHaveBeenCalled();
     });
+
+    it('should return an HTTP exception if the service throws', async () => {
+      const errorMessage = 'Service error message';
+      const spy = jest
+        .spyOn(usersService, 'findAll')
+        .mockImplementation(() => {
+          throw new Error(errorMessage);
+        });
+
+      try {
+        await usersController.findAll();
+        // When service throws, the controll must also throw, so the next line must not be reached
+        expect(true).toBe(false.valueOf);
+      } catch (e) {
+        expect(e.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR);
+        expect(e.message).toBe(errorMessage);
+        expect(e instanceof HttpException).toBeTruthy();
+      }
+      expect(spy).toHaveBeenCalled();
+    });
   });
 
   describe('findByID', () => {
@@ -121,6 +141,28 @@ describe('UsersController', () => {
       );
       expect(spy).toHaveBeenCalled();
     });
+
+    it('should return an HTTP exception if user is not found by ID', async () => {
+      // not really invalid, but the service mock throws
+      const ID = '4711';
+      const errorMessage = 'Service error message';
+      const spy = jest
+        .spyOn(usersService, 'findByID')
+        .mockImplementation(() => {
+          throw new Error(errorMessage);
+        });
+
+      try {
+        await usersController.findByID(ID);
+        // When service throws, the controll must also throw, so the next line must not be reached
+        expect(true).toBe(false.valueOf);
+      } catch (e) {
+        expect(e.status).toBe(HttpStatus.NOT_FOUND);
+        expect(e.message).toBe(errorMessage);
+        expect(e instanceof HttpException).toBeTruthy();
+      }
+      expect(spy).toHaveBeenCalled();
+    });
   });
 
   describe('findByEmail', () => {
@@ -141,6 +183,28 @@ describe('UsersController', () => {
       expect(await usersController.findByEmail(user_1.id.toString())).toBe(
         expected_user,
       );
+      expect(spy).toHaveBeenCalled();
+    });
+
+    it('should return an HTTP exception if user is not found by e-Mail', async () => {
+      // not really invalid, but the service mock throws
+      const eMail = 'a.b@x.com';
+      const errorMessage = 'Service error message';
+      const spy = jest
+        .spyOn(usersService, 'findByEmail')
+        .mockImplementation(() => {
+          throw new Error(errorMessage);
+        });
+
+      try {
+        await usersController.findByEmail(eMail);
+        // When service throws, the controll must also throw, so the next line must not be reached
+        expect(true).toBe(false.valueOf);
+      } catch (e) {
+        expect(e.status).toBe(HttpStatus.NOT_FOUND);
+        expect(e.message).toBe(errorMessage);
+        expect(e instanceof HttpException).toBeTruthy();
+      }
       expect(spy).toHaveBeenCalled();
     });
   });
@@ -179,7 +243,7 @@ describe('UsersController', () => {
       };
       const errorMessage = 'No user to update';
       const spy = jest.spyOn(usersService, 'update').mockImplementation(() => {
-        return Promise.resolve(undefined);
+        throw new Error(errorMessage);
       });
 
       try {

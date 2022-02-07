@@ -1,10 +1,13 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
   Get,
   HttpException,
   HttpStatus,
+  InternalServerErrorException,
+  NotFoundException,
   Param,
   Patch,
   Post,
@@ -26,18 +29,26 @@ export class UsersController {
     try {
       return await this.usersService.create(createUserDto);
     } catch (e) {
-      throw new HttpException(e.message, HttpStatus.BAD_REQUEST);
+      throw new BadRequestException(e.message);
     }
   }
 
   @Get()
   findAll(): Promise<ReadUserDto[]> {
-    return this.usersService.findAll();
+    try {
+      return this.usersService.findAll();  
+    } catch (e) {
+      throw new InternalServerErrorException(e.message);
+    }
   }
 
   @Get('email')
   findByEmail(@Query('email') email: string): Promise<ReadUserDto | undefined> {
-    return this.usersService.findByEmail(email);
+    try {
+      return this.usersService.findByEmail(email);
+    } catch (e) {
+      throw new NotFoundException(e.message);
+    }
   }
 
   @Get(':id')
@@ -45,7 +56,7 @@ export class UsersController {
     try {
       return await this.usersService.findByID(+id);
     } catch (e) {
-      throw new HttpException(e.message, HttpStatus.NOT_FOUND);
+      throw new NotFoundException(e.message);
     }
   }
 
@@ -54,14 +65,10 @@ export class UsersController {
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<ReadUserDto> {
-    const user: ReadUserDto = await this.usersService.update(
-      +id,
-      updateUserDto,
-    );
-    if (user != undefined) {
-      return user;
-    } else {
-      throw new HttpException('No user to update', HttpStatus.NO_CONTENT);
+    try {
+      return await this.usersService.update(+id, updateUserDto);
+    } catch  (e) {
+      throw new HttpException(e.message, HttpStatus.NO_CONTENT);
     }
   }
 
