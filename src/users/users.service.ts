@@ -9,7 +9,7 @@ import { User } from './entities/user.entity';
 @Injectable()
 export class UsersService {
   private readonly logger = new Logger(UsersService.name);
-
+  
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
@@ -41,7 +41,7 @@ export class UsersService {
         return Promise.resolve(foundUser);
       }
     } catch {
-      this.logger.log('User creation failed');
+      this.logger.error('User creation failed');
       throw new Error(`User creation failed`);
     }
   }
@@ -54,7 +54,7 @@ export class UsersService {
       createUserDto.lastName === '' ||
       createUserDto.email === ''
     ) {
-      this.logger.warn(`User data incomplete`);
+      this.logger.error(`User data incomplete`);
       throw new Error(`User data incomplet`);
     }
 
@@ -67,7 +67,7 @@ export class UsersService {
     }
 
     if (eMailAvailable === false) {
-      this.logger.warn(`User e-mail already taken`);
+      this.logger.error(`User e-mail already taken`);
       throw new Error(`User e-mail already taken`);
     }
   }
@@ -105,7 +105,7 @@ export class UsersService {
       };
       return Promise.resolve(foundUser);
     } else {
-      this.logger.log(`User with id = ${id} not found`);
+      this.logger.error(`User with id = ${id} not found`);
       throw new Error(`User with id = ${id} not found`);
     }
   }
@@ -126,7 +126,7 @@ export class UsersService {
       };
       return Promise.resolve(foundUser);
     } else {
-      this.logger.log(`User with email = ${email} not found`);
+      this.logger.error(`User with email = ${email} not found`);
       throw new Error(`User with email = ${email} not found`);
     }
   }
@@ -163,7 +163,7 @@ export class UsersService {
       };
       return Promise.resolve(updatedUser);
     } else {
-      this.logger.log(
+      this.logger.error(
         `Update not executed as user with id ${id} does not exist`,
       );
       throw new Error(
@@ -179,7 +179,7 @@ export class UsersService {
     if (result.affected === 1) {
       return Promise.resolve(undefined);
     } else {
-      this.logger.log(`User with ID ${id} was not deleted`);
+      this.logger.error(`User with ID ${id} was not deleted`);
       throw new Error(`User with ID ${id} was not deleted`);
     }
   }
