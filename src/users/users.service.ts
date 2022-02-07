@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { ConsoleLogger, Injectable, LogLevel } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeleteResult, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -8,12 +8,19 @@ import { User } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {
-  private readonly logger = new Logger(UsersService.name);
-  
+  private readonly logger = new ConsoleLogger(UsersService.name);
+
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
-  ) {}
+  ) {
+    let logLevels: Array<LogLevel> = [];
+    if (process.env.LOGLEVEL) {
+
+      logLevels = logLevels.concat(<LogLevel>process.env.LOGLEVEL);
+    }
+    this.logger.setLogLevels(logLevels)
+  }
 
   async create(createUserDto: CreateUserDto): Promise<ReadUserDto> | undefined {
     const userWithoutPassword: CreateUserDto = {
