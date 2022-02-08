@@ -1,5 +1,6 @@
 import { ConsoleLogger, Injectable, LogLevel } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as bcrypt from 'bcrypt';
 import { DeleteResult, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ReadUserDto } from './dto/read-user.dto';
@@ -35,6 +36,10 @@ export class UsersService {
     // check if all required data was provided
     await this.checkCreateDataValid(createUserDto);
 
+    // Hash password before storing it on the DB
+    const saltOrRounds: number = 10;
+    createUserDto.password = await bcrypt.hash(createUserDto.password, saltOrRounds);
+
     try {
       const user: User = await this.usersRepository.save(createUserDto);
       if (user !== undefined) {
@@ -53,32 +58,14 @@ export class UsersService {
     }
   }
 
-  private async checkCreateDataValid(createUserDto: CreateUserDto) {
-    if (
-      createUserDto.username === '' ||
-      createUserDto.password === '' ||
-      createUserDto.firstName === '' ||
-      createUserDto.lastName === '' ||
-      createUserDto.email === ''
-    ) {
-      this.logger.error(`User data incomplete`);
-      throw new Error(`User data incomplet`);
-    }
-
-    let eMailAvailable = false;
-    try {
-      await this.findByEmail(createUserDto.email);
-      eMailAvailable = false;
-    } catch {
-      eMailAvailable = true;
-    }
-
-    if (eMailAvailable === false) {
-      this.logger.error(`User e-mail already taken`);
-      throw new Error(`User e-mail already taken`);
-    }
+  async passwordCorrect(id: number, password: string): Promise<boolean> {
+    this.logger.log(`passwordCorrect: id = ${id}`);
+    const user: User = await this.usersRepository.findOne({
+      where: { id: id },
+    });
+    return bcrypt.compare(password, user.password);
   }
-
+  
   async findAll(): Promise<ReadUserDto[]> {
     this.logger.log(`findAll`);
     const user: User[] = await this.usersRepository.find();
@@ -121,8 +108,8 @@ export class UsersService {
     this.logger.log(`findByEMail: email = ${email}`);
     try {
       const user: User = await this.usersRepository.findOne({
-      where: { email: email },
-     });
+        where: { email: email },
+      });
 
       const foundUser: ReadUserDto = {
         id: user.id,
@@ -188,6 +175,32 @@ export class UsersService {
     } else {
       this.logger.error(`User with ID ${id} was not deleted`);
       throw new Error(`User with ID ${id} was not deleted`);
+    }
+  }
+
+  private async checkCreateDataValid(createUserDto: CreateUserDto): Promise<void> {
+    if (
+      createUserDto.username === '' ||
+      createUserDto.password === '' ||
+      createUserDto.firstName === '' ||
+      createUserDto.lastName === '' ||
+      createUserDto.email === ''
+    ) {
+      this.logger.error(`User data incomplete`);
+      throw new Error(`User data incomplet`);
+    }
+
+    let eMailAvailable = false;
+    try {
+      await this.findByEmail(createUserDto.email);
+      eMailAvailable = false;
+    } catch {
+      eMailAvailable = true;
+    }
+
+    if (eMailAvailable === false) {
+      this.logger.error(`User e-mail already taken`);
+      throw new Error(`User e-mail already taken`);
     }
   }
 }

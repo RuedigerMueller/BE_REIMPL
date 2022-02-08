@@ -189,4 +189,14 @@ describe('UsersService', () => {
       await expect(userService.remove(4711)).rejects.toThrow();
     });
   });
+
+  describe('passwordCorrect', () => {
+    it('should return true for a matching password', async () => {
+      expect(await userService.passwordCorrect(user_1.id, 'changeme')).toBe(true);
+    }); 
+
+    it('should return for for a not matching password', async () => {
+      expect(await userService.passwordCorrect(user_1.id, 'wrongpassword')).toBe(false);
+    });
+  })
 });
