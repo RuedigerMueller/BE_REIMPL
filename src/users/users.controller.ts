@@ -11,7 +11,7 @@ import {
   Param,
   Patch,
   Post,
-  Query,
+  Query
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ReadUserDto } from './dto/read-user.dto';
@@ -25,7 +25,7 @@ export class UsersController {
   @Post()
   async create(
     @Body() createUserDto: CreateUserDto,
-  ): Promise<ReadUserDto | undefined> {
+  ): Promise<ReadUserDto> {
     try {
       return await this.usersService.create(createUserDto);
     } catch (e) {
@@ -34,25 +34,25 @@ export class UsersController {
   }
 
   @Get()
-  findAll(): Promise<ReadUserDto[]> {
+  async findAll(): Promise<ReadUserDto[]> {
     try {
-      return this.usersService.findAll();  
+      return await this.usersService.findAll();  
     } catch (e) {
       throw new InternalServerErrorException(e.message);
     }
   }
 
   @Get('email')
-  findByEmail(@Query('email') email: string): Promise<ReadUserDto | undefined> {
+  async findByEmail(@Query('email') email: string): Promise<ReadUserDto> {
     try {
-      return this.usersService.findByEmail(email);
+      return await this.usersService.findByEmail(email);
     } catch (e) {
       throw new NotFoundException(e.message);
     }
   }
 
   @Get(':id')
-  async findByID(@Param('id') id: string): Promise<ReadUserDto | undefined> {
+  async findByID(@Param('id') id: string): Promise<ReadUserDto> {
     try {
       return await this.usersService.findByID(+id);
     } catch (e) {

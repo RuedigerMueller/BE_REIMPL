@@ -22,7 +22,7 @@ export class UsersService {
     this.logger.setLogLevels(logLevels)
   }
 
-  async create(createUserDto: CreateUserDto): Promise<ReadUserDto> | undefined {
+  async create(createUserDto: CreateUserDto): Promise<ReadUserDto> {
     const userWithoutPassword: CreateUserDto = {
       email: createUserDto.email,
       password: '*',
@@ -96,7 +96,7 @@ export class UsersService {
     return Promise.resolve(result);
   }
 
-  async findByID(id: number): Promise<ReadUserDto | undefined> {
+  async findByID(id: number): Promise<ReadUserDto> {
     this.logger.log(`findOne: id = ${id}`);
     const user: User = await this.usersRepository.findOne({
       where: { id: id },
@@ -117,13 +117,13 @@ export class UsersService {
     }
   }
 
-  async findByEmail(email: string): Promise<ReadUserDto | undefined> {
+  async findByEmail(email: string): Promise<ReadUserDto> {
     this.logger.log(`findByEMail: email = ${email}`);
-    const user: User = await this.usersRepository.findOne({
+    try {
+      const user: User = await this.usersRepository.findOne({
       where: { email: email },
-    });
+     });
 
-    if (user !== undefined) {
       const foundUser: ReadUserDto = {
         id: user.id,
         username: user.username,
@@ -132,7 +132,7 @@ export class UsersService {
         email: user.email,
       };
       return Promise.resolve(foundUser);
-    } else {
+    } catch {
       this.logger.error(`User with email = ${email} not found`);
       throw new Error(`User with email = ${email} not found`);
     }
@@ -141,7 +141,7 @@ export class UsersService {
   async update(
     id: number,
     updateUserDto: UpdateUserDto,
-  ): Promise<ReadUserDto | undefined> {
+  ): Promise<ReadUserDto> {
     const userWithoutPassword: UpdateUserDto = {
       ...updateUserDto,
       password: '*',
