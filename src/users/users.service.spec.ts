@@ -134,6 +134,27 @@ describe('UsersService', () => {
     });
   });
 
+  describe('findByUsername', () => {
+    it('should find a user with an existing username', async () => {
+      const expected_user: ReadUserDto = {
+        id: user_1.id,
+        email: user_1.email,
+        firstName: user_1.firstName,
+        lastName: user_1.lastName,
+        username: user_1.username,
+      };
+      expect(await userService.findByUsername(user_1.username)).toEqual(
+        expected_user,
+      );
+    });
+
+    it('should not find a user with a not existing username', async () => {
+      await expect(
+        userService.findByUsername('notexistingusername'),
+      ).rejects.toThrow();
+    });
+  });
+
   describe('findAll', () => {
     it('should return all the users in the repository', async () => {
       let expected_users: ReadUserDto[] = [];
@@ -190,13 +211,24 @@ describe('UsersService', () => {
     });
   });
 
-  describe('passwordCorrect', () => {
-    it('should return true for a matching password', async () => {
-      expect(await userService.passwordCorrect(user_1.id, 'changeme')).toBe(true);
-    }); 
-
-    it('should return for for a not matching password', async () => {
-      expect(await userService.passwordCorrect(user_1.id, 'wrongpassword')).toBe(false);
+  describe('validateUser', () => {
+    it('should return user for a matching password', async () => {
+      const expected_user: ReadUserDto = {
+        id: user_1.id,
+        email: user_1.email,
+        firstName: user_1.firstName,
+        lastName: user_1.lastName,
+        username: user_1.username,
+      };
+      expect(
+        await userService.validateUser(user_1.username, 'changeme'),
+      ).toEqual(expected_user);
     });
-  })
+
+    it('should return undefined for a not matching password', async () => {
+      expect(
+        await userService.validateUser(user_1.username, 'wrongpassword'),
+      ).toEqual(undefined);
+    });
+  });
 });

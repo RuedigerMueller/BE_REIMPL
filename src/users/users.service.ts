@@ -17,28 +17,24 @@ export class UsersService {
   ) {
     let logLevels: Array<LogLevel> = [];
     if (process.env.LOGLEVEL) {
-
       logLevels = logLevels.concat(<LogLevel>process.env.LOGLEVEL);
     }
-    this.logger.setLogLevels(logLevels)
+    this.logger.setLogLevels(logLevels);
   }
 
   async create(createUserDto: CreateUserDto): Promise<ReadUserDto> {
-    const userWithoutPassword: CreateUserDto = {
-      email: createUserDto.email,
-      password: '*',
-      firstName: createUserDto.firstName,
-      lastName: createUserDto.lastName,
-      username: createUserDto.username,
-    };
+    const { password, ...userWithoutPassword } = createUserDto;
     this.logger.log(`createUserDto = ${JSON.stringify(userWithoutPassword)}`);
 
     // check if all required data was provided
     await this.checkCreateDataValid(createUserDto);
 
     // Hash password before storing it on the DB
-    const saltOrRounds: number = 10;
-    createUserDto.password = await bcrypt.hash(createUserDto.password, saltOrRounds);
+    const saltOrRounds = 10;
+    createUserDto.password = await bcrypt.hash(
+      createUserDto.password,
+      saltOrRounds,
+    );
 
     try {
       const user: User = await this.usersRepository.save(createUserDto);
@@ -50,7 +46,7 @@ export class UsersService {
           lastName: user.lastName,
           username: user.username,
         };
-        return Promise.resolve(foundUser);
+        return foundUser;
       }
     } catch {
       this.logger.error('User creation failed');
@@ -58,14 +54,21 @@ export class UsersService {
     }
   }
 
-  async passwordCorrect(id: number, password: string): Promise<boolean> {
-    this.logger.log(`passwordCorrect: id = ${id}`);
+  async validateUser(
+    username: string,
+    password: string,
+  ): Promise<ReadUserDto | undefined> {
+    this.logger.log(`passwordCorrect: username = ${username}`);
     const user: User = await this.usersRepository.findOne({
-      where: { id: id },
+      where: { username: username },
     });
-    return bcrypt.compare(password, user.password);
+    if (await bcrypt.compare(password, user.password)) {
+      return this.user2readUserDto(user);
+    } else {
+      return undefined;
+    }
   }
-  
+
   async findAll(): Promise<ReadUserDto[]> {
     this.logger.log(`findAll`);
     const user: User[] = await this.usersRepository.find();
@@ -80,7 +83,7 @@ export class UsersService {
       };
       result = result.concat(readUserDto);
     });
-    return Promise.resolve(result);
+    return result;
   }
 
   async findByID(id: number): Promise<ReadUserDto> {
@@ -97,7 +100,7 @@ export class UsersService {
         lastName: user.lastName,
         username: user.username,
       };
-      return Promise.resolve(foundUser);
+      return foundUser;
     } else {
       this.logger.error(`User with id = ${id} not found`);
       throw new Error(`User with id = ${id} not found`);
@@ -110,25 +113,27 @@ export class UsersService {
       const user: User = await this.usersRepository.findOne({
         where: { email: email },
       });
-
-      const foundUser: ReadUserDto = {
-        id: user.id,
-        username: user.username,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-      };
-      return Promise.resolve(foundUser);
+      return this.user2readUserDto(user);
     } catch {
       this.logger.error(`User with email = ${email} not found`);
       throw new Error(`User with email = ${email} not found`);
     }
   }
 
-  async update(
-    id: number,
-    updateUserDto: UpdateUserDto,
-  ): Promise<ReadUserDto> {
+  async findByUsername(username: string): Promise<ReadUserDto> {
+    this.logger.log(`findByUsername: username = ${username}`);
+    try {
+      const user: User = await this.usersRepository.findOne({
+        where: { username: username },
+      });
+      return this.user2readUserDto(user);
+    } catch {
+      this.logger.error(`User with email = ${username} not found`);
+      throw new Error(`User with email = ${username} not found`);
+    }
+  }
+
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<ReadUserDto> {
     const userWithoutPassword: UpdateUserDto = {
       ...updateUserDto,
       password: '*',
@@ -144,18 +149,11 @@ export class UsersService {
     });
 
     if (user !== undefined) {
-      const result = await this.usersRepository.save({
+      const resultUser = await this.usersRepository.save({
         ...user, // existing fields
         ...updateUserDto, // updated fields
       });
-      const updatedUser: ReadUserDto = {
-        id: result.id,
-        email: result.email,
-        firstName: result.firstName,
-        lastName: result.lastName,
-        username: result.username,
-      };
-      return Promise.resolve(updatedUser);
+      return this.user2readUserDto(resultUser);
     } else {
       this.logger.error(
         `Update not executed as user with id ${id} does not exist`,
@@ -171,14 +169,16 @@ export class UsersService {
 
     const result: DeleteResult = await this.usersRepository.delete(id);
     if (result.affected === 1) {
-      return Promise.resolve(undefined);
+      return undefined;
     } else {
       this.logger.error(`User with ID ${id} was not deleted`);
       throw new Error(`User with ID ${id} was not deleted`);
     }
   }
 
-  private async checkCreateDataValid(createUserDto: CreateUserDto): Promise<void> {
+  private async checkCreateDataValid(
+    createUserDto: CreateUserDto,
+  ): Promise<void> {
     if (
       createUserDto.username === '' ||
       createUserDto.password === '' ||
@@ -202,5 +202,16 @@ export class UsersService {
       this.logger.error(`User e-mail already taken`);
       throw new Error(`User e-mail already taken`);
     }
+  }
+
+  private user2readUserDto(user: User) {
+    const foundUser: ReadUserDto = {
+      id: user.id,
+      username: user.username,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+    };
+    return foundUser;
   }
 }

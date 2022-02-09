@@ -102,11 +102,9 @@ describe('UsersController', () => {
 
     it('should return an HTTP exception if the service throws', async () => {
       const errorMessage = 'Service error message';
-      const spy = jest
-        .spyOn(usersService, 'findAll')
-        .mockImplementation(() => {
-          throw new Error(errorMessage);
-        });
+      const spy = jest.spyOn(usersService, 'findAll').mockImplementation(() => {
+        throw new Error(errorMessage);
+      });
 
       try {
         await usersController.findAll();
@@ -136,15 +134,13 @@ describe('UsersController', () => {
           (): Promise<ReadUserDto> => Promise.resolve(expected_user),
         );
 
-      expect(await usersController.findByID(user_1.id)).toBe(
-        expected_user,
-      );
+      expect(await usersController.findByID(user_1.id)).toBe(expected_user);
       expect(spy).toHaveBeenCalled();
     });
 
     it('should return an HTTP exception if user is not found by ID', async () => {
       // not really invalid, but the service mock throws
-      const ID: number = 4711;
+      const ID = 4711;
       const errorMessage = 'Service error message';
       const spy = jest
         .spyOn(usersService, 'findByID')

@@ -21,6 +21,12 @@ export class UserRepositoryMock {
     return conditions['email'];
   }
 
+  getUsernamefromQuery(query: string): string {
+    // { where: { id: '0', username: 'john' } }
+    const conditions: string = query['where'];
+    return conditions['username'];
+  }
+
   async save(user: User): Promise<User> {
     if (user.id === undefined) {
       user.id = addUser_1.id;
@@ -32,10 +38,13 @@ export class UserRepositoryMock {
   async findOne(criteria: string): Promise<User> {
     const id: number = this.getIDfromQuery(criteria);
     const email: string = this.geteMailfromQuery(criteria);
+    const username: string = this.getUsernamefromQuery(criteria);
     if (email) {
       return this.userRepository.find((user) => user.email === email);
     } else if (id) {
       return this.userRepository.find((user) => user.id === id);
+    } else if (username) {
+      return this.userRepository.find((user) => user.username === username);
     } else {
       return null;
     }

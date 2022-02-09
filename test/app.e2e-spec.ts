@@ -108,7 +108,9 @@ describe('AppController (e2e)', () => {
   });
 
   it('/users/byEMail (Get)', async () => {
-    const resp = await request(app.getHttpServer()).get(`/users/byEMail/?email=${initialUserRepository[0].email}`);
+    const resp = await request(app.getHttpServer()).get(
+      `/users/byEMail/?email=${initialUserRepository[0].email}`,
+    );
 
     expect(resp.statusCode).toBe(HttpStatus.OK);
     expect(resp.body.username).toBe(initialUserRepository[0].username);
@@ -119,20 +121,24 @@ describe('AppController (e2e)', () => {
   });
 
   it('/users/1 (Patch)', async () => {
-    const updateUserResponse = await request(app.getHttpServer()).post('/users').send({
-      username: addUser_1.username,
-      password: addUser_1.password,
-      firstName: addUser_1.firstName,
-      lastName: addUser_1.lastName,
-      email: addUser_1.email,
-    });
+    const updateUserResponse = await request(app.getHttpServer())
+      .post('/users')
+      .send({
+        username: addUser_1.username,
+        password: addUser_1.password,
+        firstName: addUser_1.firstName,
+        lastName: addUser_1.lastName,
+        email: addUser_1.email,
+      });
     const updateUserDto: UpdateUserDto = {
       firstName: 'updated',
       lastName: 'updated',
-      password: 'update'
-    }
+      password: 'update',
+    };
 
-    const resp = await request(app.getHttpServer()).patch(`/users/${updateUserResponse.body.id}`).send(updateUserDto);
+    const resp = await request(app.getHttpServer())
+      .patch(`/users/${updateUserResponse.body.id}`)
+      .send(updateUserDto);
 
     expect(resp.statusCode).toBe(HttpStatus.OK);
     expect(resp.body.username).toBe(addUser_1.username);
@@ -143,15 +149,19 @@ describe('AppController (e2e)', () => {
   });
 
   it('/users/1 (Delete)', async () => {
-    const createUserResponse = await request(app.getHttpServer()).post('/users').send({
-      username: addUser_1.username,
-      password: addUser_1.password,
-      firstName: addUser_1.firstName,
-      lastName: addUser_1.lastName,
-      email: addUser_1.email,
-    });
+    const createUserResponse = await request(app.getHttpServer())
+      .post('/users')
+      .send({
+        username: addUser_1.username,
+        password: addUser_1.password,
+        firstName: addUser_1.firstName,
+        lastName: addUser_1.lastName,
+        email: addUser_1.email,
+      });
 
-    const resp = await request(app.getHttpServer()).delete(`/users/${createUserResponse.body.id}`);
+    const resp = await request(app.getHttpServer()).delete(
+      `/users/${createUserResponse.body.id}`,
+    );
 
     expect(resp.statusCode).toBe(HttpStatus.OK);
     expect(resp.body).toStrictEqual({});

@@ -12,7 +12,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
-  Query
+  Query,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ReadUserDto } from './dto/read-user.dto';
@@ -24,9 +24,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  async create(
-    @Body() createUserDto: CreateUserDto,
-  ): Promise<ReadUserDto> {
+  async create(@Body() createUserDto: CreateUserDto): Promise<ReadUserDto> {
     try {
       return await this.usersService.create(createUserDto);
     } catch (e) {
@@ -37,7 +35,7 @@ export class UsersController {
   @Get()
   async findAll(): Promise<ReadUserDto[]> {
     try {
-      return await this.usersService.findAll();  
+      return await this.usersService.findAll();
     } catch (e) {
       throw new InternalServerErrorException(e.message);
     }
@@ -68,7 +66,7 @@ export class UsersController {
   ): Promise<ReadUserDto> {
     try {
       return await this.usersService.update(id, updateUserDto);
-    } catch  (e) {
+    } catch (e) {
       throw new HttpException(e.message, HttpStatus.NO_CONTENT);
     }
   }
