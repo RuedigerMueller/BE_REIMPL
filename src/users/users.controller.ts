@@ -9,6 +9,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   Query
@@ -42,7 +43,7 @@ export class UsersController {
     }
   }
 
-  @Get('email')
+  @Get('byEMail')
   async findByEmail(@Query('email') email: string): Promise<ReadUserDto> {
     try {
       return await this.usersService.findByEmail(email);
@@ -52,9 +53,9 @@ export class UsersController {
   }
 
   @Get(':id')
-  async findByID(@Param('id') id: string): Promise<ReadUserDto> {
+  async findByID(@Param('id', ParseIntPipe) id: number): Promise<ReadUserDto> {
     try {
-      return await this.usersService.findByID(+id);
+      return await this.usersService.findByID(id);
     } catch (e) {
       throw new NotFoundException(e.message);
     }
@@ -62,20 +63,20 @@ export class UsersController {
 
   @Patch(':id')
   async update(
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<ReadUserDto> {
     try {
-      return await this.usersService.update(+id, updateUserDto);
+      return await this.usersService.update(id, updateUserDto);
     } catch  (e) {
       throw new HttpException(e.message, HttpStatus.NO_CONTENT);
     }
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string): Promise<void> {
+  async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     try {
-      return await this.usersService.remove(+id);
+      return await this.usersService.remove(id);
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.NO_CONTENT);
     }

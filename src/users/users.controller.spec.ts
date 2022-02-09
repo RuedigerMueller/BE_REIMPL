@@ -136,7 +136,7 @@ describe('UsersController', () => {
           (): Promise<ReadUserDto> => Promise.resolve(expected_user),
         );
 
-      expect(await usersController.findByID(user_1.id.toString())).toBe(
+      expect(await usersController.findByID(user_1.id)).toBe(
         expected_user,
       );
       expect(spy).toHaveBeenCalled();
@@ -144,7 +144,7 @@ describe('UsersController', () => {
 
     it('should return an HTTP exception if user is not found by ID', async () => {
       // not really invalid, but the service mock throws
-      const ID = '4711';
+      const ID: number = 4711;
       const errorMessage = 'Service error message';
       const spy = jest
         .spyOn(usersService, 'findByID')
@@ -229,7 +229,7 @@ describe('UsersController', () => {
           (): Promise<ReadUserDto> => Promise.resolve(expected_user),
         );
 
-      expect(await usersController.update(user_1.id.toString(), userDto)).toBe(
+      expect(await usersController.update(user_1.id, userDto)).toBe(
         expected_user,
       );
       expect(spy).toHaveBeenCalled();
@@ -247,7 +247,7 @@ describe('UsersController', () => {
       });
 
       try {
-        await usersController.update('4711', userDto);
+        await usersController.update(4711, userDto);
         // Expecting the controller to throw, so the next line must not be reached
         expect(true).toBe(false.valueOf);
       } catch (e) {
@@ -265,7 +265,7 @@ describe('UsersController', () => {
         return Promise.resolve(undefined);
       });
 
-      usersController.remove(user_1.id.toString());
+      usersController.remove(user_1.id);
 
       expect(spy).toHaveBeenCalled();
     });
@@ -277,7 +277,7 @@ describe('UsersController', () => {
       });
 
       try {
-        await usersController.remove('4711');
+        await usersController.remove(4711);
         // Expecting the controller to throw, so the next line must not be reached
         expect(true).toBe(false.valueOf);
       } catch (e) {

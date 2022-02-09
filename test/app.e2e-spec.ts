@@ -107,8 +107,8 @@ describe('AppController (e2e)', () => {
     expect(resp.body.password).toBeUndefined();
   });
 
-  it('/users/email (Get)', async () => {
-    const resp = await request(app.getHttpServer()).get(`/users/email/?email=${initialUserRepository[0].email}`);
+  it('/users/byEMail (Get)', async () => {
+    const resp = await request(app.getHttpServer()).get(`/users/byEMail/?email=${initialUserRepository[0].email}`);
 
     expect(resp.statusCode).toBe(HttpStatus.OK);
     expect(resp.body.username).toBe(initialUserRepository[0].username);
