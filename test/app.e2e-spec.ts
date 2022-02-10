@@ -9,6 +9,13 @@ import {
   addUser_1,
   initialUserRepository,
 } from './../src/users/users.testdata';
+import { JwtModule, JwtService } from '@nestjs/jwt';
+import { jwtConfiguration } from '../src/auth/authConfiguration';
+import { AppController } from '../src/app.controller';
+import { AuthService } from '../src/auth/auth.service';
+import { UsersService } from '../src/users/users.service';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { UserRepositoryMock } from '../src/users/users.repository.mock';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
@@ -17,7 +24,23 @@ describe('AppController (e2e)', () => {
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [
+        AppModule,
+        JwtModule.register({
+          secret: jwtConfiguration.secret,
+          signOptions: { expiresIn: '1800s' },
+        }),
+      ],
+      //controllers: [AppController],
+      providers: [
+        AuthService, 
+        UsersService,
+        {
+          provide: getRepositoryToken(User),
+          useClass: UserRepositoryMock,
+        },
+        //JwtService,
+      ],
     }).compile();
 
     app = moduleFixture.createNestApplication();

@@ -6,6 +6,9 @@ import { UserRepositoryMock } from '../users/users.repository.mock';
 import { UsersService } from '../users/users.service';
 import { AuthService } from './auth.service';
 import { ReadUserDto } from '../users/dto/read-user.dto';
+import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
+import { jwtConfiguration } from './authConfiguration';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -13,6 +16,13 @@ describe('AuthService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [
+        PassportModule,
+        JwtModule.register({
+          secret: jwtConfiguration.secret,
+          signOptions: { expiresIn: '60s' },
+        }),
+      ],
       providers: [
         AuthService,
         UsersService,
