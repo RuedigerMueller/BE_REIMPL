@@ -1,7 +1,7 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { UpdateUserDto } from 'src/users/dto/update-user.dto';
-import { User } from 'src/users/entities/user.entity';
+import { UpdateUserDto } from '../src/users/dto/update-user.dto';
+import { User } from '../src/users/entities/user.entity';
 import * as request from 'supertest';
 import { Connection, Repository } from 'typeorm';
 import { AppModule } from './../src/app.module';
