@@ -8,6 +8,7 @@ import { AppModule } from './../src/app.module';
 import {
   addUser_1,
   initialUserRepository,
+  user_1,
 } from './../src/users/users.testdata';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConfiguration } from '../src/auth/authConfiguration';
@@ -15,10 +16,12 @@ import { AuthService } from '../src/auth/auth.service';
 import { UsersService } from '../src/users/users.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { UserRepositoryMock } from '../src/users/users.repository.mock';
+import { ReadUserDto } from '../src/users/dto/read-user.dto';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
   let repository: Repository<User>;
+  let authService: AuthService;
   let connection: Connection;
 
   beforeAll(async () => {
@@ -30,20 +33,19 @@ describe('AppController (e2e)', () => {
           signOptions: { expiresIn: '1800s' },
         }),
       ],
-      //controllers: [AppController],
       providers: [
-        AuthService, 
+        AuthService,
         UsersService,
         {
           provide: getRepositoryToken(User),
           useClass: UserRepositoryMock,
         },
-        //JwtService,
       ],
     }).compile();
 
     app = moduleFixture.createNestApplication();
     repository = moduleFixture.get('UserRepository');
+    authService = moduleFixture.get<AuthService>(AuthService);
     connection = repository.manager.connection;
     // dropBeforeSync: If set to true then it drops the database with all its tables and data
     await connection.synchronize(true);
@@ -88,7 +90,11 @@ describe('AppController (e2e)', () => {
   });
 
   it('/users (Get)', async () => {
-    const resp = await request(app.getHttpServer()).get('/users');
+    const accessToken = await login(authService, app);
+
+    const resp = await request(app.getHttpServer())
+      .get('/users')
+      .set('Authorization', `Bearer ${accessToken}`);
 
     expect(resp.statusCode).toBe(HttpStatus.OK);
 
@@ -119,7 +125,10 @@ describe('AppController (e2e)', () => {
   });
 
   it('/users/1 (Get)', async () => {
-    const resp = await request(app.getHttpServer()).get('/users/1');
+    const accessToken = await login(authService, app);
+
+    const resp = await request(app.getHttpServer()).get('/users/1')
+      .set('Authorization', `Bearer ${accessToken}`);
 
     expect(resp.statusCode).toBe(HttpStatus.OK);
     expect(resp.body.username).toBe(initialUserRepository[0].username);
@@ -130,9 +139,11 @@ describe('AppController (e2e)', () => {
   });
 
   it('/users/byEMail (Get)', async () => {
-    const resp = await request(app.getHttpServer()).get(
-      `/users/byEMail/?email=${initialUserRepository[0].email}`,
-    );
+    const accessToken = await login(authService, app);
+
+    const resp = await request(app.getHttpServer())
+      .get(`/users/byEMail/?email=${initialUserRepository[0].email}`)
+      .set('Authorization', `Bearer ${accessToken}`);
 
     expect(resp.statusCode).toBe(HttpStatus.OK);
     expect(resp.body.username).toBe(initialUserRepository[0].username);
@@ -143,6 +154,8 @@ describe('AppController (e2e)', () => {
   });
 
   it('/users/1 (Patch)', async () => {
+    const accessToken = await login(authService, app);
+
     const updateUserResponse = await request(app.getHttpServer())
       .post('/users')
       .send({
@@ -151,7 +164,9 @@ describe('AppController (e2e)', () => {
         firstName: addUser_1.firstName,
         lastName: addUser_1.lastName,
         email: addUser_1.email,
-      });
+      })
+      .set('Authorization', `Bearer ${accessToken}`);
+
     const updateUserDto: UpdateUserDto = {
       firstName: 'updated',
       lastName: 'updated',
@@ -160,7 +175,8 @@ describe('AppController (e2e)', () => {
 
     const resp = await request(app.getHttpServer())
       .patch(`/users/${updateUserResponse.body.id}`)
-      .send(updateUserDto);
+      .send(updateUserDto)
+      .set('Authorization', `Bearer ${accessToken}`);
 
     expect(resp.statusCode).toBe(HttpStatus.OK);
     expect(resp.body.username).toBe(addUser_1.username);
@@ -171,6 +187,8 @@ describe('AppController (e2e)', () => {
   });
 
   it('/users/1 (Delete)', async () => {
+    const accessToken = await login(authService, app);
+
     const createUserResponse = await request(app.getHttpServer())
       .post('/users')
       .send({
@@ -179,13 +197,41 @@ describe('AppController (e2e)', () => {
         firstName: addUser_1.firstName,
         lastName: addUser_1.lastName,
         email: addUser_1.email,
-      });
+      })
+      .set('Authorization', `Bearer ${accessToken}`);
 
-    const resp = await request(app.getHttpServer()).delete(
-      `/users/${createUserResponse.body.id}`,
-    );
+    const resp = await request(app.getHttpServer())
+      .delete(`/users/${createUserResponse.body.id}`)
+      .set('Authorization', `Bearer ${accessToken}`);
 
     expect(resp.statusCode).toBe(HttpStatus.OK);
     expect(resp.body).toStrictEqual({});
   });
 });
+
+async function login(authService: AuthService, app: INestApplication): Promise<String> {
+  const expected_user: ReadUserDto = {
+    id: user_1.id,
+    email: user_1.email,
+    firstName: user_1.firstName,
+    lastName: user_1.lastName,
+    username: user_1.username,
+  };
+  const spy = jest
+    .spyOn(authService, 'validateUser')
+    .mockImplementation(
+      (): Promise<ReadUserDto> => Promise.resolve(expected_user)
+    );
+
+  const loginResp = await request(app.getHttpServer())
+    .post('/login')
+    .set('Content-Type', 'application/json')
+    .send({
+      username: user_1.username,
+      password: 'changeme'
+    });
+  console.log(loginResp.body.access_token);
+  expect(spy).toHaveBeenCalled();
+  return loginResp.body.access_token;
+}
+
