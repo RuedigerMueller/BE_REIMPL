@@ -9,6 +9,8 @@ export class AppController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(@Request() req) {
+    // LocalAuthGuard checks if username and password match and adds a ReadUserDto to the request
+    // Login then basically only converts the user data into a JWT success token
     return this.authService.login(req.user)
   }
 }
