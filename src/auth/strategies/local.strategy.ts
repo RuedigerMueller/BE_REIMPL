@@ -11,6 +11,8 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     super();
   }
 
+  // Routes protect with this strategy must provide include username & password
+  // Request object will be enriched with a full user in case of successful validation
   async validate(username: string, password: string): Promise<ReadUserDto> {
     const user: ReadUserDto = await this.authService.validateUser(
       username,

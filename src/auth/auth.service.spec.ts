@@ -6,13 +6,14 @@ import { UserRepositoryMock } from '../users/users.repository.mock';
 import { UsersService } from '../users/users.service';
 import { AuthService } from './auth.service';
 import { ReadUserDto } from '../users/dto/read-user.dto';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { jwtConfiguration } from './authConfiguration';
+import { jwtConfiguration } from './configuration/authConfiguration';
 
 describe('AuthService', () => {
-  let service: AuthService;
+  let authService: AuthService;
   let usersService: UsersService;
+  let jwtService: JwtService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -33,12 +34,13 @@ describe('AuthService', () => {
       ],
     }).compile();
 
-    service = module.get<AuthService>(AuthService);
+    authService = module.get<AuthService>(AuthService);
     usersService = module.get<UsersService>(UsersService);
+    jwtService = module.get<JwtService>(JwtService);
   });
 
   it('should be defined', () => {
-    expect(service).toBeDefined();
+    expect(authService).toBeDefined();
   });
 
   describe('validateUser', () => {
@@ -57,7 +59,7 @@ describe('AuthService', () => {
         );
 
       expect(
-        await usersService.validateUser(user_1.username, 'changeme'),
+        await authService.validateUser(user_1.username, 'changeme'),
       ).toEqual(expected_user);
       expect(spy).toHaveBeenCalled();
     });
@@ -69,9 +71,30 @@ describe('AuthService', () => {
           return undefined;
         });
       expect(
-        await usersService.validateUser(user_1.username, 'wrongpassword'),
+        await authService.validateUser(user_1.username, 'wrongpassword'),
       ).toEqual(undefined);
       expect(spy).toHaveBeenCalled();
     });
   });
+    
+  describe('login', () => {
+    it('should return and access token', async () => {
+      const user: ReadUserDto = {
+        id: user_1.id,
+        email: user_1.email,
+        firstName: user_1.firstName,
+        lastName: user_1.lastName,
+        username: user_1.username,
+      };
+      
+      const accessToken = await authService.login(user);
+      const decodedToken = jwtService.decode(accessToken.access_token);
+
+      expect(decodedToken['sub']).toBe(user_1.id);
+      expect(decodedToken['username']).toBe(user_1.username);
+      expect(decodedToken['firstName']).toBe(user_1.firstName);
+      expect(decodedToken['lastName']).toBe(user_1.lastName);
+      expect(decodedToken['email']).toBe(user_1.email);
+    });
+  }); 
 });
