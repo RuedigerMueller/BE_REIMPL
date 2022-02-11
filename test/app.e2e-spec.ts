@@ -124,6 +124,13 @@ describe('AppController (e2e)', () => {
     expect(resp.body).toEqual(expected_result);
   });
 
+  it('/users (Get) should only accept calls with access token', async () => {
+    const resp = await request(app.getHttpServer())
+      .get('/users');
+
+    expect(resp.statusCode).toBe(HttpStatus.UNAUTHORIZED);
+  });
+
   it('/users/1 (Get)', async () => {
     const accessToken = await login(authService, app);
 
@@ -136,6 +143,12 @@ describe('AppController (e2e)', () => {
     expect(resp.body.lastName).toBe(initialUserRepository[0].lastName);
     expect(resp.body.email).toBe(initialUserRepository[0].email);
     expect(resp.body.password).toBeUndefined();
+  });
+
+  it('/users/1 (Get) should only accept calls with access token', async () => {
+    const resp = await request(app.getHttpServer()).get('/users/1');
+
+    expect(resp.statusCode).toBe(HttpStatus.UNAUTHORIZED);
   });
 
   it('/users/byEMail (Get)', async () => {
@@ -151,6 +164,13 @@ describe('AppController (e2e)', () => {
     expect(resp.body.lastName).toBe(initialUserRepository[0].lastName);
     expect(resp.body.email).toBe(initialUserRepository[0].email);
     expect(resp.body.password).toBeUndefined();
+  });
+
+  it('/users/byEMail (Get) should only accept calls with access token', async () => {
+    const resp = await request(app.getHttpServer())
+      .get(`/users/byEMail/?email=${initialUserRepository[0].email}`)
+
+    expect(resp.statusCode).toBe(HttpStatus.UNAUTHORIZED);
   });
 
   it('/users/1 (Patch)', async () => {
@@ -186,6 +206,20 @@ describe('AppController (e2e)', () => {
     expect(resp.body.password).toBeUndefined();
   });
 
+  it('/users/1 (Patch) should only accept calls with access token', async () => {
+    const updateUserDto: UpdateUserDto = {
+      firstName: 'updated',
+      lastName: 'updated',
+      password: 'update',
+    };
+
+    const resp = await request(app.getHttpServer())
+      .patch(`/users/1`)
+      .send(updateUserDto)
+
+    expect(resp.statusCode).toBe(HttpStatus.UNAUTHORIZED);
+  });
+
   it('/users/1 (Delete)', async () => {
     const accessToken = await login(authService, app);
 
@@ -206,6 +240,13 @@ describe('AppController (e2e)', () => {
 
     expect(resp.statusCode).toBe(HttpStatus.OK);
     expect(resp.body).toStrictEqual({});
+  });
+
+  it('/users/1 (Patch) should only accept calls with access token', async () => {
+    const resp = await request(app.getHttpServer())
+      .delete(`/users/1`);
+    
+      expect(resp.statusCode).toBe(HttpStatus.UNAUTHORIZED);
   });
 });
 
