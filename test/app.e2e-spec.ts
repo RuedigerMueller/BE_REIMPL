@@ -11,7 +11,7 @@ import {
   user_1,
 } from './../src/users/users.testdata';
 import { JwtModule } from '@nestjs/jwt';
-import { jwtConfiguration } from '../src/auth/configuration/authConfiguration';
+import { jwtConfiguration } from '../src/config/authConfiguration';
 import { AuthService } from '../src/auth/auth.service';
 import { UsersService } from '../src/users/users.service';
 import { getRepositoryToken } from '@nestjs/typeorm';

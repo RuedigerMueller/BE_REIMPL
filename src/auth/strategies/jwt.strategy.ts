@@ -3,7 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ReadUserDto } from 'src/users/dto/read-user.dto';
 import { consoleLoggerOptions } from '../../config/logLevelConfig';
-import { jwtConfiguration } from '../configuration/authConfiguration';
+import { jwtConfiguration } from '../../config/authConfiguration';
 import { LocalStrategy } from './local.strategy';
 
 @Injectable()

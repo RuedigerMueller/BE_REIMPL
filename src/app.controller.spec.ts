@@ -3,7 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AuthService } from './auth/auth.service';
-import { jwtConfiguration } from './auth/configuration/authConfiguration';
+import { jwtConfiguration } from './config/authConfiguration';
 import { User } from './users/entities/user.entity';
 import { UserRepositoryMock } from './users/users.repository.mock';
 import { UsersService } from './users/users.service';

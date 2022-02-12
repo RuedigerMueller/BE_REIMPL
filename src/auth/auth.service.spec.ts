@@ -8,7 +8,7 @@ import { AuthService } from './auth.service';
 import { ReadUserDto } from '../users/dto/read-user.dto';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { jwtConfiguration } from './configuration/authConfiguration';
+import { jwtConfiguration } from '../config/authConfiguration';
 
 describe('AuthService', () => {
   let authService: AuthService;
