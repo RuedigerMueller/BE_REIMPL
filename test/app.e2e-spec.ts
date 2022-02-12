@@ -271,7 +271,6 @@ async function login(authService: AuthService, app: INestApplication): Promise<S
       username: user_1.username,
       password: 'changeme'
     });
-  console.log(loginResp.body.access_token);
   expect(spy).toHaveBeenCalled();
   return loginResp.body.access_token;
 }

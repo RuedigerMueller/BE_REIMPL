@@ -2,6 +2,7 @@ import { ConsoleLogger, Injectable, LogLevel } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { DeleteResult, Repository } from 'typeorm';
+import { consoleLoggerOptions } from '../config/logLevelConfig';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ReadUserDto } from './dto/read-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -9,18 +10,12 @@ import { User } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {
-  private readonly logger = new ConsoleLogger(UsersService.name);
+  private readonly logger = new ConsoleLogger(UsersService.name, consoleLoggerOptions);
 
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
-  ) {
-    let logLevels: Array<LogLevel> = [];
-    if (process.env.LOGLEVEL) {
-      logLevels = logLevels.concat(<LogLevel>process.env.LOGLEVEL);
-    }
-    this.logger.setLogLevels(logLevels);
-  }
+  ) { }
 
   async create(createUserDto: CreateUserDto): Promise<ReadUserDto> {
     const { password, ...userWithoutPassword } = createUserDto;
@@ -58,13 +53,15 @@ export class UsersService {
     username: string,
     password: string,
   ): Promise<ReadUserDto | undefined> {
-    this.logger.log(`passwordCorrect: username = ${username}`);
+    this.logger.log(`validateUser: username = ${username}`);
     const user: User = await this.usersRepository.findOne({
       where: { username: username },
     });
     if (await bcrypt.compare(password, user.password)) {
+      this.logger.log(`user validation successful`);
       return this.user2readUserDto(user);
     } else {
+      this.logger.warn(`user validation NOT successful`);
       return undefined;
     }
   }

@@ -1,11 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { ConsoleLogger, Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ReadUserDto } from 'src/users/dto/read-user.dto';
+import { consoleLoggerOptions } from '../../config/logLevelConfig';
 import { jwtConfiguration } from '../configuration/authConfiguration';
+import { LocalStrategy } from './local.strategy';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
+    private readonly logger = new ConsoleLogger(LocalStrategy.name, consoleLoggerOptions);
+    
     constructor() {
         super({
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -18,6 +22,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     // will get enriched with a full user object created from the decrypted
     // JWT token
     async validate(payload: any) {
+        this.logger.log(`validate: payload = ${payload}`);
         const user: ReadUserDto = {
             id: payload.sub,
             username: payload.username,
