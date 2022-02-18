@@ -9,7 +9,6 @@ RUN npm ci &&  \
 FROM node:14.17.0-alpine
 WORKDIR /usr/src/app
 COPY --from=nodebuild /usr/src/app/dist/ ./dist
-COPY ormconfig.json ./
 COPY package*.json ./
 RUN npm install --only=prod
 EXPOSE 3000
