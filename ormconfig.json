@@ -1,5 +1,5 @@
 {
-    "type": "sqlite",
+    "type": "better-sqlite3",
     "database": "test.db",
     "entities": [
         "dist/**/*.entity{.ts,.js}"

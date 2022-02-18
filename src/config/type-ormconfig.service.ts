@@ -56,7 +56,7 @@ export class TypeORMConfigService implements TypeOrmOptionsFactory {
     // Running local E2E tests?
     if (process.env.NODE_ENV === 'e2etest') {
       return {
-        type: 'sqlite',
+        type: 'better-sqlite3',
         database: 'teste2e.db',
         entities: ['./**/*.entity.ts'],
         synchronize: true,
