@@ -1,0 +1,16 @@
+name: Build, test and push to Docker Hub
+
+on:
+  push:
+    branches:
+      - master
+
+jobs: 
+  build_and_push_docker_image:
+    uses: RuedigerMueller/GitHubWorkflows/.github/workflows/build_and_optionally_push.yml@main
+    with:
+      DOCKERHUB_USERNAME: ruedigermueller
+      DOCKERHUB_REPOSITORY: user
+      DOCKERHUB_PUSH: true
+    secrets:
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}

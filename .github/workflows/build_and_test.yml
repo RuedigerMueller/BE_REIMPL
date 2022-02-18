@@ -1,0 +1,16 @@
+name: Build and test
+
+on:
+  push:
+    branches-ignore:
+      - master
+
+jobs:
+  build_and_test:
+    uses: RuedigerMueller/GitHubWorkflows/.github/workflows/build_and_optionally_push.yml@main
+    with:
+      DOCKERHUB_USERNAME: ruedigermueller
+      DOCKERHUB_REPOSITORY: user
+      DOCKERHUB_PUSH: false
+    secrets:
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
