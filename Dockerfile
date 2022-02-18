@@ -12,4 +12,4 @@ COPY --from=nodebuild /usr/src/app/dist/ ./dist
 COPY package*.json ./
 RUN npm install --only=prod
 EXPOSE 3000
-CMD npm run-script start
+CMD npm run-script start:prod
