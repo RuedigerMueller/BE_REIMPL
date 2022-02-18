@@ -21,12 +21,13 @@ describe('AppController', () => {
       ],
       controllers: [AppController],
       providers: [
-        AuthService, 
+        AuthService,
         UsersService,
         {
           provide: getRepositoryToken(User),
           useClass: UserRepositoryMock,
-        },],
+        },
+      ],
     }).compile();
 
     appController = app.get<AppController>(AppController);

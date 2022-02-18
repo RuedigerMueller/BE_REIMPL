@@ -125,8 +125,7 @@ describe('AppController (e2e)', () => {
   });
 
   it('/users (Get) should only accept calls with access token', async () => {
-    const resp = await request(app.getHttpServer())
-      .get('/users');
+    const resp = await request(app.getHttpServer()).get('/users');
 
     expect(resp.statusCode).toBe(HttpStatus.UNAUTHORIZED);
   });
@@ -134,7 +133,8 @@ describe('AppController (e2e)', () => {
   it('/users/1 (Get)', async () => {
     const accessToken = await login(authService, app);
 
-    const resp = await request(app.getHttpServer()).get('/users/1')
+    const resp = await request(app.getHttpServer())
+      .get('/users/1')
       .set('Authorization', `Bearer ${accessToken}`);
 
     expect(resp.statusCode).toBe(HttpStatus.OK);
@@ -167,8 +167,9 @@ describe('AppController (e2e)', () => {
   });
 
   it('/users/byEMail (Get) should only accept calls with access token', async () => {
-    const resp = await request(app.getHttpServer())
-      .get(`/users/byEMail/?email=${initialUserRepository[0].email}`)
+    const resp = await request(app.getHttpServer()).get(
+      `/users/byEMail/?email=${initialUserRepository[0].email}`,
+    );
 
     expect(resp.statusCode).toBe(HttpStatus.UNAUTHORIZED);
   });
@@ -215,7 +216,7 @@ describe('AppController (e2e)', () => {
 
     const resp = await request(app.getHttpServer())
       .patch(`/users/1`)
-      .send(updateUserDto)
+      .send(updateUserDto);
 
     expect(resp.statusCode).toBe(HttpStatus.UNAUTHORIZED);
   });
@@ -243,14 +244,16 @@ describe('AppController (e2e)', () => {
   });
 
   it('/users/1 (Patch) should only accept calls with access token', async () => {
-    const resp = await request(app.getHttpServer())
-      .delete(`/users/1`);
-    
-      expect(resp.statusCode).toBe(HttpStatus.UNAUTHORIZED);
+    const resp = await request(app.getHttpServer()).delete(`/users/1`);
+
+    expect(resp.statusCode).toBe(HttpStatus.UNAUTHORIZED);
   });
 });
 
-async function login(authService: AuthService, app: INestApplication): Promise<String> {
+async function login(
+  authService: AuthService,
+  app: INestApplication,
+): Promise<String> {
   const expected_user: ReadUserDto = {
     id: user_1.id,
     email: user_1.email,
@@ -261,7 +264,7 @@ async function login(authService: AuthService, app: INestApplication): Promise<S
   const spy = jest
     .spyOn(authService, 'validateUser')
     .mockImplementation(
-      (): Promise<ReadUserDto> => Promise.resolve(expected_user)
+      (): Promise<ReadUserDto> => Promise.resolve(expected_user),
     );
 
   const loginResp = await request(app.getHttpServer())
@@ -269,9 +272,8 @@ async function login(authService: AuthService, app: INestApplication): Promise<S
     .set('Content-Type', 'application/json')
     .send({
       username: user_1.username,
-      password: 'changeme'
+      password: 'changeme',
     });
   expect(spy).toHaveBeenCalled();
   return loginResp.body.access_token;
 }
-

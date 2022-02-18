@@ -6,11 +6,14 @@ import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class AuthService {
-  private readonly logger = new ConsoleLogger(UsersService.name, consoleLoggerOptions);
-  
+  private readonly logger = new ConsoleLogger(
+    UsersService.name,
+    consoleLoggerOptions,
+  );
+
   constructor(
-    private usersService: UsersService, 
-    private jwtService: JwtService
+    private usersService: UsersService,
+    private jwtService: JwtService,
   ) {}
 
   async validateUser(
@@ -23,15 +26,15 @@ export class AuthService {
 
   async login(user: ReadUserDto) {
     this.logger.log(`login: user = ${user}`);
-    const payload = { 
+    const payload = {
       sub: user.id,
-      username: user.username, 
+      username: user.username,
       firstName: user.firstName,
       lastName: user.lastName,
-      email: user.email
+      email: user.email,
     };
     return {
       access_token: this.jwtService.sign(payload),
-    }
+    };
   }
 }

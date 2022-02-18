@@ -76,7 +76,7 @@ describe('AuthService', () => {
       expect(spy).toHaveBeenCalled();
     });
   });
-    
+
   describe('login', () => {
     it('should return and access token', async () => {
       const user: ReadUserDto = {
@@ -86,7 +86,7 @@ describe('AuthService', () => {
         lastName: user_1.lastName,
         username: user_1.username,
       };
-      
+
       const accessToken = await authService.login(user);
       const decodedToken = jwtService.decode(accessToken.access_token);
 
@@ -96,5 +96,5 @@ describe('AuthService', () => {
       expect(decodedToken['lastName']).toBe(user_1.lastName);
       expect(decodedToken['email']).toBe(user_1.email);
     });
-  }); 
+  });
 });

@@ -1,8 +1,8 @@
 {
-  "name": "backend",
+  "name": "user",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "User service - can be used as a starting point for an application/service",
+  "author": "Rüdiger Müller",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {

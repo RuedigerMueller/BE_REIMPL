@@ -11,11 +11,11 @@ import { LocalStrategy } from './strategies/local.strategy';
 
 @Module({
   imports: [
-    UsersModule, 
+    UsersModule,
     PassportModule,
     JwtModule.register({
       secret: jwtConfiguration.secret,
-      signOptions: jwtConfiguration.signOptions
+      signOptions: jwtConfiguration.signOptions,
     }),
   ],
   providers: [AuthService, LocalStrategy, JwtStrategy],

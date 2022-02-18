@@ -10,12 +10,15 @@ import { User } from './entities/user.entity';
 
 @Injectable()
 export class UsersService {
-  private readonly logger = new ConsoleLogger(UsersService.name, consoleLoggerOptions);
+  private readonly logger = new ConsoleLogger(
+    UsersService.name,
+    consoleLoggerOptions,
+  );
 
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
-  ) { }
+  ) {}
 
   async create(createUserDto: CreateUserDto): Promise<ReadUserDto> {
     const { password, ...userWithoutPassword } = createUserDto;
