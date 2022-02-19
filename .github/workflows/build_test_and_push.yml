@@ -12,5 +12,6 @@ jobs:
       DOCKERHUB_USERNAME: ruedigermueller
       DOCKERHUB_REPOSITORY: user
       DOCKERHUB_PUSH: true
+      DOCKERHUB_TAG: latest
     secrets:
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
