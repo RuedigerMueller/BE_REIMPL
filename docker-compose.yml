@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  database:
+    image: 'postgres:latest'
+
+    ports:
+      - 5432:5432
+
+    environment:
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: changeme
+      POSTGRES_DB: testdb
+  
+  user:
+    image: 'ruedigermueller/user:undertest'
+    ports:
+      - 3000:3000
+    environment:
+      TYPEORM_CONNECTION: postgres
+      TYPEORM_DATABASE: testdb
+      TYPEORM_HOST: localhost
+      TYPEORM_PASSWORD: changeme
+      TYPEORM_PORT: 5432
+      TYPEORM_SYNCHRONIZE: true
+      TYPEORM_USERNAME: test_user
+      TYPEORM_ENTITIES: dist/**/*.entity.js
+      TYPEORM_MIGRATION: migration/*.js
