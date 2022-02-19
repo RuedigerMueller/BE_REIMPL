@@ -4,7 +4,10 @@ Repository which can be used as a starting point for any application requiring a
 
 ## Quick start
 The GitHub repo is configured which GitHub Actions which trigger the creation on a Docker image for the User service.
-You can run "docker compose up" to launch the User service along with a dockerized Postgres DB. Check out the docker-compose.yml for details.
+You can run the User service along with a dockerized Postgres DB. Check out the docker-compose.yml for details.
+```bash
+$ docker compose up
+```
 
 ## Installation
 
