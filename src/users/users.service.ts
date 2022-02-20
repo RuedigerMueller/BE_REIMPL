@@ -1,4 +1,4 @@
-import { ConsoleLogger, Injectable, LogLevel } from '@nestjs/common';
+import { ConsoleLogger, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { DeleteResult, Repository } from 'typeorm';

@@ -10,6 +10,7 @@ import { UsersService } from './users/users.service';
 
 describe('AppController', () => {
   let appController: AppController;
+  let authService: AuthService;
 
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
@@ -31,11 +32,16 @@ describe('AppController', () => {
     }).compile();
 
     appController = app.get<AppController>(AppController);
+    authService = app.get<AuthService>(AuthService);
   });
 
   describe('root', () => {
     it('should be defined', () => {
       expect(appController).toBeDefined();
     });
+  });
+
+  describe('login', () => {
+    xit('should be return access  token', () => {});
   });
 });

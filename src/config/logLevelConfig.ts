@@ -8,7 +8,7 @@ function getLogLevel() {
     logLevels = logLevels.concat(<LogLevel>process.env.LOGLEVEL);
   }
 
-  let consoleLoggerOptions: ConsoleLoggerOptions = {
+  const consoleLoggerOptions: ConsoleLoggerOptions = {
     logLevels: logLevels,
   };
   return consoleLoggerOptions;

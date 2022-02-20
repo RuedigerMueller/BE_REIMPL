@@ -253,7 +253,7 @@ describe('AppController (e2e)', () => {
 async function login(
   authService: AuthService,
   app: INestApplication,
-): Promise<String> {
+): Promise<string> {
   const expected_user: ReadUserDto = {
     id: user_1.id,
     email: user_1.email,
