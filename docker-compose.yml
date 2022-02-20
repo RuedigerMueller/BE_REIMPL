@@ -15,7 +15,7 @@ services:
   
   user:
     container_name: user
-    image: 'ruedigermueller/user:undertest'
+    image: 'ruedigermueller/user:latest'
     links: 
       - postgres
     ports:
