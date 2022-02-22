@@ -46,10 +46,8 @@ export class UsersService {
           user: user,
         };
         const createdRole: Role = await this.roleRepostitory.save(role);
-        console.log(createdRole);
 
         const readUserDto: ReadUserDto = await this.findByID(user.id);
-        console.log(readUserDto);
         return readUserDto;
       }
     } catch {
@@ -91,8 +89,6 @@ export class UsersService {
     const user: User = await this.usersRepository.findOne({
       where: { id: id },
     });
-
-    console.log('findByID:', user);
 
     if (user !== undefined) {
       return this.user2readUserDto(user);
