@@ -24,7 +24,7 @@ import { ReadUserDto } from './dto/read-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
 
-@Roles(RoleEnum.Admin)
+@Roles(RoleEnum.User)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
