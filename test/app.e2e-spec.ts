@@ -17,6 +17,10 @@ import { UsersService } from '../src/users/users.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { UserRepositoryMock } from '../src/users/users.repository.mock';
 import { ReadUserDto } from '../src/users/dto/read-user.dto';
+import { user2readUserDto } from './helpers';
+import { Role } from '../src/roles/entities/role.entity';
+import { RoleRepositoryMock } from '../src/roles/roles.repository.mock';
+import { RoleEnum } from '../src/roles/roles.enum';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
@@ -40,6 +44,10 @@ describe('AppController (e2e)', () => {
           provide: getRepositoryToken(User),
           useClass: UserRepositoryMock,
         },
+        {
+          provide: getRepositoryToken(Role),
+          useClass: RoleRepositoryMock,
+        },
       ],
     }).compile();
 
@@ -50,25 +58,37 @@ describe('AppController (e2e)', () => {
     // dropBeforeSync: If set to true then it drops the database with all its tables and data
     await connection.synchronize(true);
 
-    const insertQueries = [];
-    let insertSQL = '';
+    const insertUserQueries = [];
+    let insertUserSQL = '';
     initialUserRepository.forEach((user) => {
-      insertSQL = `INSERT INTO User (id, username, password, firstname, lastname, email) VALUES (NULL, '${user.username}', '${user.password}', '${user.firstName}', '${user.lastName}', '${user.email}');`;
-      insertQueries.push(connection.query(insertSQL));
+      insertUserSQL = `INSERT INTO User (id, username, password, firstname, lastname, email) VALUES (NULL, '${user.username}', '${user.password}', '${user.firstName}', '${user.lastName}', '${user.email}');`;
+      insertUserQueries.push(connection.query(insertUserSQL));
     });
-    await Promise.all(insertQueries);
+    await Promise.all(insertUserQueries);
+
+    const insertRoleQueries = [];
+    let insertRoleSQL = '';
+    initialUserRepository.forEach((user) => {
+      insertRoleSQL = `INSERT INTO Role (id, role, userid) VALUES (NULL, '${RoleEnum.User}', '${user.id}');`;
+      insertRoleQueries.push(connection.query(insertRoleSQL));
+    });
+    await Promise.all(insertRoleQueries);
 
     await app.init();
   });
 
   afterEach(async () => {
-    const deleteTableSQL = 'DELETE FROM User WHERE ID > 3';
-    await connection.query(deleteTableSQL);
+    const deleteRolesSQL = 'DELETE FROM Role WHERE userid >3';
+    await connection.query(deleteRolesSQL);
+    const deleteUsersSQL = 'DELETE FROM User WHERE ID > 3';
+    await connection.query(deleteUsersSQL);
   });
 
   afterAll(async () => {
-    const dropTableSQL = 'DROP TABLE IF EXISTS `User`';
-    await connection.query(dropTableSQL);
+    const dropRoleTableSQL = 'DROP TABLE IF EXISTS `Role`';
+    await connection.query(dropRoleTableSQL);
+    const dropUserTableSQL = 'DROP TABLE IF EXISTS `User`';
+    await connection.query(dropUserTableSQL);
     await connection.close();
   });
 
@@ -99,27 +119,9 @@ describe('AppController (e2e)', () => {
     expect(resp.statusCode).toBe(HttpStatus.OK);
 
     const expected_result = [
-      {
-        id: 1,
-        email: initialUserRepository[0].email,
-        firstName: initialUserRepository[0].firstName,
-        lastName: initialUserRepository[0].lastName,
-        username: initialUserRepository[0].username,
-      },
-      {
-        id: 2,
-        email: initialUserRepository[1].email,
-        firstName: initialUserRepository[1].firstName,
-        lastName: initialUserRepository[1].lastName,
-        username: initialUserRepository[1].username,
-      },
-      {
-        id: 3,
-        email: initialUserRepository[2].email,
-        firstName: initialUserRepository[2].firstName,
-        lastName: initialUserRepository[2].lastName,
-        username: initialUserRepository[2].username,
-      },
+      user2readUserDto(initialUserRepository[0]),
+      user2readUserDto(initialUserRepository[1]),
+      user2readUserDto(initialUserRepository[2]),
     ];
     expect(resp.body).toEqual(expected_result);
   });
@@ -239,11 +241,11 @@ describe('AppController (e2e)', () => {
       .delete(`/users/${createUserResponse.body.id}`)
       .set('Authorization', `Bearer ${accessToken}`);
 
-    expect(resp.statusCode).toBe(HttpStatus.OK);
+    expect(resp.statusCode).toBe(HttpStatus.NO_CONTENT);
     expect(resp.body).toStrictEqual({});
   });
 
-  it('/users/1 (Patch) should only accept calls with access token', async () => {
+  it('/users/1 (Delete) should only accept calls with access token', async () => {
     const resp = await request(app.getHttpServer()).delete(`/users/1`);
 
     expect(resp.statusCode).toBe(HttpStatus.UNAUTHORIZED);
@@ -254,13 +256,7 @@ async function login(
   authService: AuthService,
   app: INestApplication,
 ): Promise<string> {
-  const expected_user: ReadUserDto = {
-    id: user_1.id,
-    email: user_1.email,
-    firstName: user_1.firstName,
-    lastName: user_1.lastName,
-    username: user_1.username,
-  };
+  const expected_user: ReadUserDto = user2readUserDto(user_1);
   const spy = jest
     .spyOn(authService, 'validateUser')
     .mockImplementation(

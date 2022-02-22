@@ -1,4 +1,6 @@
 import { DeleteResult } from 'typeorm';
+import { Role } from '../roles/entities/role.entity';
+import { RoleEnum } from '../roles/roles.enum';
 import { User } from './entities/user.entity';
 import { addUser_1, initialUserRepository } from './users.testdata';
 
@@ -29,7 +31,14 @@ export class UserRepositoryMock {
 
   async save(user: User): Promise<User> {
     if (user.id === undefined) {
+      const userRole: Role = new Role();
+      userRole.id = 1;
+      userRole.role = RoleEnum.User;
+
+      const userRoles: Array<Role> = [];
+      userRoles.push(userRole);
       user.id = addUser_1.id;
+      user.roles = userRoles;
       this.userRepository = this.userRepository.concat(user);
     }
     return user;

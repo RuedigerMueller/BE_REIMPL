@@ -17,9 +17,6 @@ import { UsersModule } from './users/users.module';
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [
-    AuthService,
-    TypeORMConfigService,
-  ],
+  providers: [AuthService, TypeORMConfigService],
 })
 export class AppModule {}

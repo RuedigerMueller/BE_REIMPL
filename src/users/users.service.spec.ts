@@ -1,5 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { user2createUserDto, user2readUserDto } from '../../test/helpers';
+import { Role } from '../roles/entities/role.entity';
+import { RoleRepositoryMock } from '../roles/roles.repository.mock';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ReadUserDto } from './dto/read-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -24,6 +27,10 @@ describe('UsersService', () => {
           provide: getRepositoryToken(User),
           useClass: UserRepositoryMock,
         },
+        {
+          provide: getRepositoryToken(Role),
+          useClass: RoleRepositoryMock,
+        },
       ],
     }).compile();
 
@@ -36,35 +43,18 @@ describe('UsersService', () => {
 
   describe('create', () => {
     it('should create a user with ID', async () => {
-      const expected_result: ReadUserDto = {
-        id: addUser_1.id,
-        email: addUser_1.email,
-        firstName: addUser_1.firstName,
-        lastName: addUser_1.lastName,
-        username: addUser_1.username,
-      };
-      const createUserDto: CreateUserDto = {
-        email: addUser_1.email,
-        password: addUser_1.password,
-        firstName: addUser_1.firstName,
-        lastName: addUser_1.lastName,
-        username: addUser_1.username,
-      };
+      const expected_result: ReadUserDto = user2readUserDto(addUser_1);
+      const createUserDto: CreateUserDto = user2createUserDto(addUser_1);
 
       await userService.create(createUserDto);
+
       expect(await userService.findByEmail(createUserDto.email)).toEqual(
         expected_result,
       );
     });
 
     it('should not create a user when data is missing', async () => {
-      const createUserDto: CreateUserDto = {
-        email: addUser_2.email,
-        password: addUser_2.password,
-        firstName: addUser_2.firstName,
-        lastName: addUser_2.lastName,
-        username: addUser_2.username,
-      };
+      const createUserDto: CreateUserDto = user2createUserDto(addUser_2);
       createUserDto.username = '';
       await expect(userService.create(createUserDto)).rejects.toThrow();
 
@@ -86,13 +76,7 @@ describe('UsersService', () => {
     });
 
     it('should not create a user when e-mail is already taken', async () => {
-      const createUserDto: CreateUserDto = {
-        email: addUser_1.email,
-        password: addUser_1.password,
-        firstName: addUser_1.firstName,
-        lastName: addUser_1.lastName,
-        username: addUser_1.username,
-      };
+      const createUserDto: CreateUserDto = user2createUserDto(addUser_1);
       createUserDto.email = user_1.email;
       await expect(userService.create(createUserDto)).rejects.toThrow();
     });
@@ -100,13 +84,7 @@ describe('UsersService', () => {
 
   describe('findByID', () => {
     it('should find a user with an existing ID', async () => {
-      const expected_user: ReadUserDto = {
-        id: user_1.id,
-        email: user_1.email,
-        firstName: user_1.firstName,
-        lastName: user_1.lastName,
-        username: user_1.username,
-      };
+      const expected_user: ReadUserDto = user2readUserDto(user_1);
       expect(await userService.findByID(user_1.id)).toEqual(expected_user);
     });
 
@@ -117,13 +95,7 @@ describe('UsersService', () => {
 
   describe('findByEmail', () => {
     it('should find a user with an existing ID', async () => {
-      const expected_user: ReadUserDto = {
-        id: user_1.id,
-        email: user_1.email,
-        firstName: user_1.firstName,
-        lastName: user_1.lastName,
-        username: user_1.username,
-      };
+      const expected_user: ReadUserDto = user2readUserDto(user_1);
       expect(await userService.findByEmail(user_1.email)).toEqual(
         expected_user,
       );
@@ -136,13 +108,7 @@ describe('UsersService', () => {
 
   describe('findByUsername', () => {
     it('should find a user with an existing username', async () => {
-      const expected_user: ReadUserDto = {
-        id: user_1.id,
-        email: user_1.email,
-        firstName: user_1.firstName,
-        lastName: user_1.lastName,
-        username: user_1.username,
-      };
+      const expected_user: ReadUserDto = user2readUserDto(user_1);
       expect(await userService.findByUsername(user_1.username)).toEqual(
         expected_user,
       );
@@ -159,13 +125,7 @@ describe('UsersService', () => {
     it('should return all the users in the repository', async () => {
       let expected_users: ReadUserDto[] = [];
       initialUserRepository.forEach((user) => {
-        const readUserDto: ReadUserDto = {
-          id: user.id,
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          username: user.username,
-        };
+        const readUserDto: ReadUserDto = user2readUserDto(user);
         expected_users = expected_users.concat(readUserDto);
       });
       expect(await userService.findAll()).toEqual(expected_users);
@@ -174,13 +134,10 @@ describe('UsersService', () => {
 
   describe('update', () => {
     it('should update a user with ID', async () => {
-      const expected_user: ReadUserDto = {
-        id: user_1.id,
-        username: user_1.username,
-        firstName: 'Updated',
-        lastName: 'Updated',
-        email: user_1.email,
-      };
+      const expected_user: ReadUserDto = user2readUserDto(user_1);
+      expected_user.firstName = 'Updated';
+      expected_user.lastName = 'Updated';
+
       const userDto: UpdateUserDto = {
         firstName: 'Updated',
         lastName: 'Updated',
@@ -213,13 +170,7 @@ describe('UsersService', () => {
 
   describe('validateUser', () => {
     it('should return user for a matching password', async () => {
-      const expected_user: ReadUserDto = {
-        id: user_1.id,
-        email: user_1.email,
-        firstName: user_1.firstName,
-        lastName: user_1.lastName,
-        username: user_1.username,
-      };
+      const expected_user: ReadUserDto = user2readUserDto(user_1);
       expect(
         await userService.validateUser(user_1.username, 'changeme'),
       ).toEqual(expected_user);

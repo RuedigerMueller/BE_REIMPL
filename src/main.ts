@@ -9,7 +9,6 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.use(helmet());
 
-
   const config = new DocumentBuilder()
     .setTitle('Users')
     .setDescription('The users API description')

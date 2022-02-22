@@ -35,3 +35,5 @@ lerna-debug.log*
 !.vscode/extensions.json
 test.db
 teste2e.db
+test.db-shm
+test.db-wal

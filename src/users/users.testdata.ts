@@ -1,3 +1,5 @@
+import { Role } from '../roles/entities/role.entity';
+import { RoleEnum } from '../roles/roles.enum';
 import { User } from './entities/user.entity';
 
 function createUser(
@@ -7,6 +9,7 @@ function createUser(
   firstName: string,
   lastName: string,
   email: string,
+  roles: Array<Role>,
 ): User {
   const user: User = new User();
   user.id = id;
@@ -15,10 +18,18 @@ function createUser(
   user.firstName = firstName;
   user.lastName = lastName;
   user.email = email;
+  user.roles = roles;
   return user;
 }
 
 export let initialUserRepository: ReadonlyArray<User> = [];
+
+const userRole: Role = new Role();
+userRole.id = 1;
+userRole.role = RoleEnum.User;
+
+const userRoles: Array<Role> = [];
+userRoles.push(userRole);
 
 initialUserRepository = initialUserRepository.concat(
   // plaintext password changeme
@@ -29,6 +40,7 @@ initialUserRepository = initialUserRepository.concat(
     'John',
     'Miller',
     'john@example.com',
+    userRoles,
   ),
 );
 initialUserRepository = initialUserRepository.concat(
@@ -40,6 +52,7 @@ initialUserRepository = initialUserRepository.concat(
     'Chris',
     'Myres',
     'chris@example.com',
+    userRoles,
   ),
 );
 initialUserRepository = initialUserRepository.concat(
@@ -51,6 +64,7 @@ initialUserRepository = initialUserRepository.concat(
     'Maria',
     'Muller',
     'maria@example.com',
+    userRoles,
   ),
 );
 
@@ -64,6 +78,7 @@ export const addUser_1: User = createUser(
   'Paula',
   'Paulsen',
   'paula@example.com',
+  userRoles,
 );
 
 export const addUser_2: User = createUser(
@@ -73,4 +88,5 @@ export const addUser_2: User = createUser(
   'Paul',
   'Paulsen',
   'paul@example.com',
+  userRoles,
 );

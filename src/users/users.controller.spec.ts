@@ -1,6 +1,9 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { user2createUserDto, user2readUserDto } from '../../test/helpers';
+import { Role } from '../roles/entities/role.entity';
+import { RoleRepositoryMock } from '../roles/roles.repository.mock';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ReadUserDto } from './dto/read-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -23,6 +26,10 @@ describe('UsersController', () => {
           provide: getRepositoryToken(User),
           useClass: UserRepositoryMock,
         },
+        {
+          provide: getRepositoryToken(Role),
+          useClass: RoleRepositoryMock,
+        },
       ],
     }).compile();
 
@@ -36,20 +43,8 @@ describe('UsersController', () => {
 
   describe('create', () => {
     it('should return the data returned by the UsersService', async () => {
-      const expected_user: ReadUserDto = {
-        id: addUser_1.id,
-        email: addUser_1.email,
-        firstName: addUser_1.firstName,
-        lastName: addUser_1.lastName,
-        username: addUser_1.username,
-      };
-      const userDto: CreateUserDto = {
-        email: addUser_1.email,
-        password: addUser_1.password,
-        firstName: addUser_1.firstName,
-        lastName: addUser_1.lastName,
-        username: addUser_1.username,
-      };
+      const expected_user: ReadUserDto = user2readUserDto(addUser_1);
+      const userDto: CreateUserDto = user2createUserDto(addUser_1);
       const spy = jest
         .spyOn(usersService, 'create')
         .mockImplementation(
@@ -62,13 +57,7 @@ describe('UsersController', () => {
 
     it('should return an HTTP exception on invalid data', async () => {
       // not really invalid, but the service mock throws
-      const userDto: CreateUserDto = {
-        email: addUser_1.email,
-        password: addUser_1.password,
-        firstName: addUser_1.firstName,
-        lastName: addUser_1.lastName,
-        username: addUser_1.username,
-      };
+      const userDto: CreateUserDto = user2createUserDto(addUser_1);
       const errorMessage = 'Service error message';
       const spy = jest.spyOn(usersService, 'create').mockImplementation(() => {
         throw new Error(errorMessage);
@@ -121,13 +110,7 @@ describe('UsersController', () => {
 
   describe('findByID', () => {
     it('should return the data returned by the UsersService', async () => {
-      const expected_user: ReadUserDto = {
-        id: user_1.id,
-        email: user_1.email,
-        firstName: user_1.firstName,
-        lastName: user_1.lastName,
-        username: user_1.username,
-      };
+      const expected_user: ReadUserDto = user2readUserDto(user_1);
       const spy = jest
         .spyOn(usersService, 'findByID')
         .mockImplementation(
@@ -163,13 +146,7 @@ describe('UsersController', () => {
 
   describe('findByEmail', () => {
     it('should return the data returned by the UsersService', async () => {
-      const expected_user: ReadUserDto = {
-        id: user_1.id,
-        email: user_1.email,
-        firstName: user_1.firstName,
-        lastName: user_1.lastName,
-        username: user_1.username,
-      };
+      const expected_user: ReadUserDto = user2readUserDto(user_1);
       const spy = jest
         .spyOn(usersService, 'findByEmail')
         .mockImplementation(
@@ -207,13 +184,7 @@ describe('UsersController', () => {
 
   describe('update', () => {
     it('should call update method of UsersService', async () => {
-      const expected_user: ReadUserDto = {
-        id: user_1.id,
-        email: user_1.email,
-        firstName: 'Updated',
-        lastName: 'Updated',
-        username: user_1.username,
-      };
+      const expected_user: ReadUserDto = user2readUserDto(user_1);
       const userDto: UpdateUserDto = {
         firstName: 'Updated',
         lastName: 'Updated',

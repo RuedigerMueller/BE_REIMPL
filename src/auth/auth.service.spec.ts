@@ -9,6 +9,9 @@ import { ReadUserDto } from '../users/dto/read-user.dto';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { jwtConfiguration } from '../config/authConfiguration';
+import { user2readUserDto } from '../../test/helpers';
+import { Role } from '../roles/entities/role.entity';
+import { RoleRepositoryMock } from '../roles/roles.repository.mock';
 
 describe('AuthService', () => {
   let authService: AuthService;
@@ -31,6 +34,10 @@ describe('AuthService', () => {
           provide: getRepositoryToken(User),
           useClass: UserRepositoryMock,
         },
+        {
+          provide: getRepositoryToken(Role),
+          useClass: RoleRepositoryMock,
+        },
       ],
     }).compile();
 
@@ -45,13 +52,7 @@ describe('AuthService', () => {
 
   describe('validateUser', () => {
     it('should return user for a matching password', async () => {
-      const expected_user: ReadUserDto = {
-        id: user_1.id,
-        email: user_1.email,
-        firstName: user_1.firstName,
-        lastName: user_1.lastName,
-        username: user_1.username,
-      };
+      const expected_user: ReadUserDto = user2readUserDto(user_1);
       const spy = jest
         .spyOn(usersService, 'validateUser')
         .mockImplementation(
@@ -79,13 +80,7 @@ describe('AuthService', () => {
 
   describe('login', () => {
     it('should return and access token', async () => {
-      const user: ReadUserDto = {
-        id: user_1.id,
-        email: user_1.email,
-        firstName: user_1.firstName,
-        lastName: user_1.lastName,
-        username: user_1.username,
-      };
+      const user: ReadUserDto = user2readUserDto(user_1);
 
       const accessToken = await authService.login(user);
       const decodedToken = jwtService.decode(accessToken.access_token);

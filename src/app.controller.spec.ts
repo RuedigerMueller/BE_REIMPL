@@ -4,6 +4,8 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AuthService } from './auth/auth.service';
 import { jwtConfiguration } from './config/authConfiguration';
+import { Role } from './roles/entities/role.entity';
+import { RoleRepositoryMock } from './roles/roles.repository.mock';
 import { User } from './users/entities/user.entity';
 import { UserRepositoryMock } from './users/users.repository.mock';
 import { UsersService } from './users/users.service';
@@ -27,6 +29,10 @@ describe('AppController', () => {
         {
           provide: getRepositoryToken(User),
           useClass: UserRepositoryMock,
+        },
+        {
+          provide: getRepositoryToken(Role),
+          useClass: RoleRepositoryMock,
         },
       ],
     }).compile();

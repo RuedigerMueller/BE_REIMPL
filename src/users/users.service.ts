@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { DeleteResult, Repository } from 'typeorm';
 import { consoleLoggerOptions } from '../config/logLevelConfig';
+import { Role } from '../roles/entities/role.entity';
+import { RoleEnum } from '../roles/roles.enum';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ReadUserDto } from './dto/read-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -18,6 +20,8 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    @InjectRepository(Role)
+    private roleRepostitory: Repository<Role>,
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<ReadUserDto> {
@@ -37,14 +41,16 @@ export class UsersService {
     try {
       const user: User = await this.usersRepository.save(createUserDto);
       if (user !== undefined) {
-        const foundUser: ReadUserDto = {
-          id: user.id,
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          username: user.username,
+        const role: Partial<Role> = {
+          role: RoleEnum.User,
+          user: user,
         };
-        return foundUser;
+        const createdRole: Role = await this.roleRepostitory.save(role);
+        console.log(createdRole);
+
+        const readUserDto: ReadUserDto = await this.findByID(user.id);
+        console.log(readUserDto);
+        return readUserDto;
       }
     } catch {
       this.logger.error('User creation failed');
@@ -74,13 +80,7 @@ export class UsersService {
     const user: User[] = await this.usersRepository.find();
     let result: ReadUserDto[] = [];
     user.forEach((user) => {
-      const readUserDto: ReadUserDto = {
-        id: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        username: user.username,
-      };
+      const readUserDto: ReadUserDto = this.user2readUserDto(user);
       result = result.concat(readUserDto);
     });
     return result;
@@ -92,15 +92,10 @@ export class UsersService {
       where: { id: id },
     });
 
+    console.log('findByID:', user);
+
     if (user !== undefined) {
-      const foundUser: ReadUserDto = {
-        id: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        username: user.username,
-      };
-      return foundUser;
+      return this.user2readUserDto(user);
     } else {
       this.logger.error(`User with id = ${id} not found`);
       throw new Error(`User with id = ${id} not found`);
@@ -204,13 +199,19 @@ export class UsersService {
     }
   }
 
-  private user2readUserDto(user: User) {
+  private user2readUserDto(user: User): ReadUserDto {
+    const roles: Array<RoleEnum> = [];
+    user.roles.forEach((role: Role) => {
+      roles.push(<RoleEnum>role.role);
+    });
+
     const foundUser: ReadUserDto = {
       id: user.id,
       username: user.username,
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
+      roles: roles,
     };
     return foundUser;
   }
