@@ -4,6 +4,8 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import helmet from 'helmet';
+import { UsersService } from './users/users.service';
+import { RoleEnum } from './roles/roles.enum';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -18,6 +20,20 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
 
+  const userService: UsersService = app.get(UsersService);
+  try {
+    await userService.findByUsername('Admin');
+  } catch { 
+    userService.create({
+      username: 'Admin',
+      password: 'changeme',
+      firstName: 'unknown',
+      lastName: 'unknown',
+      email: 'admin@example.com'
+    },
+    true);
+  };
+  
   await app.listen(3000);
 }
 bootstrap();

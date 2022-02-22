@@ -24,7 +24,7 @@ export class UsersService {
     private roleRepostitory: Repository<Role>,
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<ReadUserDto> {
+  async create(createUserDto: CreateUserDto, admin?: boolean): Promise<ReadUserDto> {
     const { password, ...userWithoutPassword } = createUserDto;
     this.logger.log(`createUserDto = ${JSON.stringify(userWithoutPassword)}`);
 
@@ -41,11 +41,19 @@ export class UsersService {
     try {
       const user: User = await this.usersRepository.save(createUserDto);
       if (user !== undefined) {
-        const role: Partial<Role> = {
+        const userRole: Partial<Role> = {
           role: RoleEnum.User,
           user: user,
         };
-        const createdRole: Role = await this.roleRepostitory.save(role);
+        await this.roleRepostitory.save(userRole);
+
+        if (admin === true) {
+          const adminRole: Partial<Role> = {
+            role: RoleEnum.Admin,
+            user: user,
+          };
+          await this.roleRepostitory.save(adminRole);
+        }
 
         const readUserDto: ReadUserDto = await this.findByID(user.id);
         return readUserDto;
