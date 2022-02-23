@@ -18,7 +18,8 @@ import { AppModule } from './../src/app.module';
 import {
   addUser_1,
   admin,
-  initialUserRepository
+  initialUserRepository,
+  user_1
 } from './../src/users/users.testdata';
 import { user2readUserDto } from './helpers';
 
@@ -129,6 +130,15 @@ describe('AppController (e2e)', () => {
     expect(resp.body).toEqual(expected_result);
   });
 
+  it('/users (Get) should only accept calls for users with admin role', async () => {
+    const accessToken = await login(authService, app, user2readUserDto(user_1));
+    const resp = await request(app.getHttpServer())
+      .get('/users')
+      .set('Authorization', `Bearer ${accessToken}`);
+
+    expect(resp.statusCode).toBe(HttpStatus.FORBIDDEN);
+  });
+
   it('/users (Get) should only accept calls with access token', async () => {
     const resp = await request(app.getHttpServer()).get('/users');
 
@@ -150,6 +160,16 @@ describe('AppController (e2e)', () => {
     expect(resp.body.password).toBeUndefined();
   });
 
+  it('/users/1 (Get) should only accept calls with admin role', async () => {
+    const accessToken = await login(authService, app, user2readUserDto(user_1));
+
+    const resp = await request(app.getHttpServer())
+      .get('/users/1')
+      .set('Authorization', `Bearer ${accessToken}`);
+
+    expect(resp.statusCode).toBe(HttpStatus.FORBIDDEN);
+  });
+
   it('/users/1 (Get) should only accept calls with access token', async () => {
     const resp = await request(app.getHttpServer()).get('/users/1');
 
@@ -169,6 +189,16 @@ describe('AppController (e2e)', () => {
     expect(resp.body.lastName).toBe(initialUserRepository[0].lastName);
     expect(resp.body.email).toBe(initialUserRepository[0].email);
     expect(resp.body.password).toBeUndefined();
+  });
+
+  it('/users/byEMail (Get) should only accept calls with admin role', async () => {
+    const accessToken = await login(authService, app, user2readUserDto(user_1));
+
+    const resp = await request(app.getHttpServer())
+      .get(`/users/byEMail/?email=${initialUserRepository[0].email}`)
+      .set('Authorization', `Bearer ${accessToken}`);
+
+    expect(resp.statusCode).toBe(HttpStatus.FORBIDDEN);
   });
 
   it('/users/byEMail (Get) should only accept calls with access token', async () => {
@@ -212,6 +242,23 @@ describe('AppController (e2e)', () => {
     expect(resp.body.password).toBeUndefined();
   });
 
+  it('/users/1 (Patch) should only accept calls with admin role', async () => {
+    const accessToken = await login(authService, app, user2readUserDto(user_1));
+
+    const updateUserDto: UpdateUserDto = {
+      firstName: 'updated',
+      lastName: 'updated',
+      password: 'update',
+    };
+
+    const resp = await request(app.getHttpServer())
+      .patch(`/users/1`)
+      .send(updateUserDto)
+      .set('Authorization', `Bearer ${accessToken}`);
+
+    expect(resp.statusCode).toBe(HttpStatus.FORBIDDEN);
+  });
+
   it('/users/1 (Patch) should only accept calls with access token', async () => {
     const updateUserDto: UpdateUserDto = {
       firstName: 'updated',
@@ -248,8 +295,19 @@ describe('AppController (e2e)', () => {
     expect(resp.body).toStrictEqual({});
   });
 
+  it('/users/1 (Delete) should only accept calls with admin role', async () => {
+    const accessToken = await login(authService, app, user2readUserDto(user_1));
+    
+    const resp = await request(app.getHttpServer())
+      .delete(`/users/1`)
+      .set('Authorization', `Bearer ${accessToken}`);
+
+    expect(resp.statusCode).toBe(HttpStatus.FORBIDDEN);
+  });
+
   it('/users/1 (Delete) should only accept calls with access token', async () => {
-    const resp = await request(app.getHttpServer()).delete(`/users/1`);
+    const resp = await request(app.getHttpServer())
+      .delete(`/users/1`);
 
     expect(resp.statusCode).toBe(HttpStatus.UNAUTHORIZED);
   });
