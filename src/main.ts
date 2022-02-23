@@ -2,10 +2,9 @@
 
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { AppModule } from './app.module';
 import helmet from 'helmet';
+import { AppModule } from './app.module';
 import { UsersService } from './users/users.service';
-import { RoleEnum } from './roles/roles.enum';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -23,17 +22,19 @@ async function bootstrap() {
   const userService: UsersService = app.get(UsersService);
   try {
     await userService.findByUsername('Admin');
-  } catch { 
-    userService.create({
-      username: 'Admin',
-      password: 'changeme',
-      firstName: 'unknown',
-      lastName: 'unknown',
-      email: 'admin@example.com'
-    },
-    true);
-  };
-  
+  } catch {
+    userService.create(
+      {
+        username: 'Admin',
+        password: process.env.INITIAL_ADMIN_PASSWORD || 'changeme',
+        firstName: 'unknown',
+        lastName: 'unknown',
+        email: 'admin@example.com',
+      },
+      true,
+    );
+  }
+
   await app.listen(3000);
 }
 bootstrap();

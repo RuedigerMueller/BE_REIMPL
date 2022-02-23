@@ -31,10 +31,30 @@ userRole.role = RoleEnum.User;
 const userRoles: Array<Role> = [];
 userRoles.push(userRole);
 
+const adminRole: Role = new Role();
+adminRole.id = 2;
+adminRole.role = RoleEnum.Admin;
+const adminRoles: Array<Role> = [];
+adminRoles.push(adminRole);
+adminRoles.push(userRole);
+
 initialUserRepository = initialUserRepository.concat(
   // plaintext password changeme
   createUser(
     1,
+    'Admin',
+    '$2b$10$evxpiSvr1wYKA.m3srNLq..wztoyfIPywlEkFpZBnXeqA3zkW7KRS',
+    'unknown',
+    'unknown',
+    'admin@example.com',
+    adminRoles,
+  ),
+);
+
+initialUserRepository = initialUserRepository.concat(
+  // plaintext password changeme
+  createUser(
+    2,
     'john',
     '$2b$10$evxpiSvr1wYKA.m3srNLq..wztoyfIPywlEkFpZBnXeqA3zkW7KRS',
     'John',
@@ -44,11 +64,11 @@ initialUserRepository = initialUserRepository.concat(
   ),
 );
 initialUserRepository = initialUserRepository.concat(
-  // plaintext password secret
+  // plaintext password changeme
   createUser(
-    2,
+    3,
     'chris',
-    '$2b$10$GAbzc2/Z7KcRs5jVmb5gyekjZ5XwjwKRYUgqtbyap2wl3mrq6QQo6',
+    '$2b$10$evxpiSvr1wYKA.m3srNLq..wztoyfIPywlEkFpZBnXeqA3zkW7KRS',
     'Chris',
     'Myres',
     'chris@example.com',
@@ -56,11 +76,11 @@ initialUserRepository = initialUserRepository.concat(
   ),
 );
 initialUserRepository = initialUserRepository.concat(
-  // plaintext password guess
+  // plaintext password changeme
   createUser(
-    3,
+    4,
     'maria',
-    '$2b$10$gKVCHzB5W/fn1cMTYbMV1O.WM/45Vq8tHEGszDhWsR4Px9UL3YP7.',
+    '$2b$10$evxpiSvr1wYKA.m3srNLq..wztoyfIPywlEkFpZBnXeqA3zkW7KRS',
     'Maria',
     'Muller',
     'maria@example.com',
@@ -68,11 +88,12 @@ initialUserRepository = initialUserRepository.concat(
   ),
 );
 
-export const user_1: User = initialUserRepository.find((user) => user.id === 1);
-export const user_2: User = initialUserRepository.find((user) => user.id === 2);
+export const admin: User = initialUserRepository.find((user) => user.id === 1);
+export const user_1: User = initialUserRepository.find((user) => user.id === 2);
+export const user_2: User = initialUserRepository.find((user) => user.id === 3);
 
 export const addUser_1: User = createUser(
-  4,
+  5,
   'paula',
   'special',
   'Paula',
@@ -82,7 +103,7 @@ export const addUser_1: User = createUser(
 );
 
 export const addUser_2: User = createUser(
-  5,
+  6,
   'paul',
   'special',
   'Paul',

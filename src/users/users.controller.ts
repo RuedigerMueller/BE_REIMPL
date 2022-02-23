@@ -24,7 +24,7 @@ import { ReadUserDto } from './dto/read-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
 
-@Roles(RoleEnum.User)
+@Roles(RoleEnum.Admin)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -48,7 +48,7 @@ export class UsersController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Get('byEMail')
   async findByEmail(@Query('email') email: string): Promise<ReadUserDto> {
     try {
@@ -58,7 +58,7 @@ export class UsersController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Get(':id')
   async findByID(@Param('id', ParseIntPipe) id: number): Promise<ReadUserDto> {
     try {
@@ -68,7 +68,7 @@ export class UsersController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Patch(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,
@@ -81,7 +81,7 @@ export class UsersController {
     }
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Delete(':id')
   async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     try {

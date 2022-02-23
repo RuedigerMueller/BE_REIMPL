@@ -24,7 +24,10 @@ export class UsersService {
     private roleRepostitory: Repository<Role>,
   ) {}
 
-  async create(createUserDto: CreateUserDto, admin?: boolean): Promise<ReadUserDto> {
+  async create(
+    createUserDto: CreateUserDto,
+    admin?: boolean,
+  ): Promise<ReadUserDto> {
     const { password, ...userWithoutPassword } = createUserDto;
     this.logger.log(`createUserDto = ${JSON.stringify(userWithoutPassword)}`);
 

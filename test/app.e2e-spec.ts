@@ -1,26 +1,26 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
-import { UpdateUserDto } from '../src/users/dto/update-user.dto';
-import { User } from '../src/users/entities/user.entity';
+import { getRepositoryToken } from '@nestjs/typeorm';
 import * as request from 'supertest';
 import { Connection, Repository } from 'typeorm';
+import { AuthService } from '../src/auth/auth.service';
+import { jwtConfiguration } from '../src/config/authConfiguration';
+import { Role } from '../src/roles/entities/role.entity';
+import { RoleEnum } from '../src/roles/roles.enum';
+import { RoleRepositoryMock } from '../src/roles/roles.repository.mock';
+import { ReadUserDto } from '../src/users/dto/read-user.dto';
+import { UpdateUserDto } from '../src/users/dto/update-user.dto';
+import { User } from '../src/users/entities/user.entity';
+import { UserRepositoryMock } from '../src/users/users.repository.mock';
+import { UsersService } from '../src/users/users.service';
 import { AppModule } from './../src/app.module';
 import {
   addUser_1,
-  initialUserRepository,
-  user_1,
+  admin,
+  initialUserRepository
 } from './../src/users/users.testdata';
-import { JwtModule } from '@nestjs/jwt';
-import { jwtConfiguration } from '../src/config/authConfiguration';
-import { AuthService } from '../src/auth/auth.service';
-import { UsersService } from '../src/users/users.service';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { UserRepositoryMock } from '../src/users/users.repository.mock';
-import { ReadUserDto } from '../src/users/dto/read-user.dto';
 import { user2readUserDto } from './helpers';
-import { Role } from '../src/roles/entities/role.entity';
-import { RoleRepositoryMock } from '../src/roles/roles.repository.mock';
-import { RoleEnum } from '../src/roles/roles.enum';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
@@ -68,6 +68,8 @@ describe('AppController (e2e)', () => {
 
     const insertRoleQueries = [];
     let insertRoleSQL = '';
+    insertRoleSQL = `INSERT INTO Role (id, role, userid) VALUES (NULL, '${RoleEnum.Admin}', '${initialUserRepository[0].id}');`;
+    insertRoleQueries.push(connection.query(insertRoleSQL));
     initialUserRepository.forEach((user) => {
       insertRoleSQL = `INSERT INTO Role (id, role, userid) VALUES (NULL, '${RoleEnum.User}', '${user.id}');`;
       insertRoleQueries.push(connection.query(insertRoleSQL));
@@ -78,9 +80,9 @@ describe('AppController (e2e)', () => {
   });
 
   afterEach(async () => {
-    const deleteRolesSQL = 'DELETE FROM Role WHERE userid >3';
+    const deleteRolesSQL = 'DELETE FROM Role WHERE userid >4';
     await connection.query(deleteRolesSQL);
-    const deleteUsersSQL = 'DELETE FROM User WHERE ID > 3';
+    const deleteUsersSQL = 'DELETE FROM User WHERE ID > 4';
     await connection.query(deleteUsersSQL);
   });
 
@@ -110,7 +112,7 @@ describe('AppController (e2e)', () => {
   });
 
   it('/users (Get)', async () => {
-    const accessToken = await login(authService, app);
+    const accessToken = await login(authService, app, user2readUserDto(admin));
 
     const resp = await request(app.getHttpServer())
       .get('/users')
@@ -122,6 +124,7 @@ describe('AppController (e2e)', () => {
       user2readUserDto(initialUserRepository[0]),
       user2readUserDto(initialUserRepository[1]),
       user2readUserDto(initialUserRepository[2]),
+      user2readUserDto(initialUserRepository[3]),
     ];
     expect(resp.body).toEqual(expected_result);
   });
@@ -133,7 +136,7 @@ describe('AppController (e2e)', () => {
   });
 
   it('/users/1 (Get)', async () => {
-    const accessToken = await login(authService, app);
+    const accessToken = await login(authService, app, user2readUserDto(admin));
 
     const resp = await request(app.getHttpServer())
       .get('/users/1')
@@ -154,7 +157,7 @@ describe('AppController (e2e)', () => {
   });
 
   it('/users/byEMail (Get)', async () => {
-    const accessToken = await login(authService, app);
+    const accessToken = await login(authService, app, user2readUserDto(admin));
 
     const resp = await request(app.getHttpServer())
       .get(`/users/byEMail/?email=${initialUserRepository[0].email}`)
@@ -177,7 +180,7 @@ describe('AppController (e2e)', () => {
   });
 
   it('/users/1 (Patch)', async () => {
-    const accessToken = await login(authService, app);
+    const accessToken = await login(authService, app, user2readUserDto(admin));
 
     const updateUserResponse = await request(app.getHttpServer())
       .post('/users')
@@ -224,7 +227,7 @@ describe('AppController (e2e)', () => {
   });
 
   it('/users/1 (Delete)', async () => {
-    const accessToken = await login(authService, app);
+    const accessToken = await login(authService, app, user2readUserDto(admin));
 
     const createUserResponse = await request(app.getHttpServer())
       .post('/users')
@@ -255,19 +258,17 @@ describe('AppController (e2e)', () => {
 async function login(
   authService: AuthService,
   app: INestApplication,
+  user: ReadUserDto,
 ): Promise<string> {
-  const expected_user: ReadUserDto = user2readUserDto(user_1);
   const spy = jest
     .spyOn(authService, 'validateUser')
-    .mockImplementation(
-      (): Promise<ReadUserDto> => Promise.resolve(expected_user),
-    );
+    .mockImplementation((): Promise<ReadUserDto> => Promise.resolve(user));
 
   const loginResp = await request(app.getHttpServer())
     .post('/login')
     .set('Content-Type', 'application/json')
     .send({
-      username: user_1.username,
+      username: user.username,
       password: 'changeme',
     });
   expect(spy).toHaveBeenCalled();
