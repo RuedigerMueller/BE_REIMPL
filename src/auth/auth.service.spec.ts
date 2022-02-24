@@ -9,7 +9,7 @@ import { ReadUserDto } from '../users/dto/read-user.dto';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { jwtConfiguration } from '../config/authConfiguration';
-import { user2readUserDto } from '../../test/helpers';
+import { user2readUserDto } from '../users/dto/user.dto.helpers';
 import { Role } from '../roles/entities/role.entity';
 import { RoleRepositoryMock } from '../roles/roles.repository.mock';
 

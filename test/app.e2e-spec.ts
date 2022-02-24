@@ -21,7 +21,7 @@ import {
   initialUserRepository,
   user_1
 } from './../src/users/users.testdata';
-import { user2readUserDto } from './helpers';
+import { user2readUserDto } from '../src/users/dto/user.dto.helpers';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;

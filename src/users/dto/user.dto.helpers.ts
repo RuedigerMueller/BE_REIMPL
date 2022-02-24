@@ -1,7 +1,7 @@
-import { Role } from '../src/roles/entities/role.entity';
-import { CreateUserDto } from '../src/users/dto/create-user.dto';
-import { ReadUserDto } from '../src/users/dto/read-user.dto';
-import { User } from '../src/users/entities/user.entity';
+import { Role } from '../../roles/entities/role.entity';
+import { CreateUserDto } from './create-user.dto';
+import { ReadUserDto } from './read-user.dto';
+import { User } from '../entities/user.entity';
 
 export function user2readUserDto(user: User) {
   const roles: Array<string> = [];

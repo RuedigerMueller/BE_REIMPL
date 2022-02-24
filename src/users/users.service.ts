@@ -8,6 +8,7 @@ import { RoleEnum } from '../roles/roles.enum';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ReadUserDto } from './dto/read-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { user2readUserDto } from './dto/user.dto.helpers';
 import { User } from './entities/user.entity';
 
 @Injectable()
@@ -77,7 +78,7 @@ export class UsersService {
     });
     if (await bcrypt.compare(password, user.password)) {
       this.logger.log(`user validation successful`);
-      return this.user2readUserDto(user);
+      return user2readUserDto(user);
     } else {
       this.logger.warn(`user validation NOT successful`);
       return undefined;
@@ -89,7 +90,7 @@ export class UsersService {
     const user: User[] = await this.usersRepository.find();
     let result: ReadUserDto[] = [];
     user.forEach((user) => {
-      const readUserDto: ReadUserDto = this.user2readUserDto(user);
+      const readUserDto: ReadUserDto = user2readUserDto(user);
       result = result.concat(readUserDto);
     });
     return result;
@@ -102,7 +103,7 @@ export class UsersService {
     });
 
     if (user !== undefined) {
-      return this.user2readUserDto(user);
+      return user2readUserDto(user);
     } else {
       this.logger.error(`User with id = ${id} not found`);
       throw new Error(`User with id = ${id} not found`);
@@ -115,7 +116,7 @@ export class UsersService {
       const user: User = await this.usersRepository.findOne({
         where: { email: email },
       });
-      return this.user2readUserDto(user);
+      return user2readUserDto(user);
     } catch {
       this.logger.error(`User with email = ${email} not found`);
       throw new Error(`User with email = ${email} not found`);
@@ -128,7 +129,7 @@ export class UsersService {
       const user: User = await this.usersRepository.findOne({
         where: { username: username },
       });
-      return this.user2readUserDto(user);
+      return user2readUserDto(user);
     } catch {
       this.logger.error(`User with email = ${username} not found`);
       throw new Error(`User with email = ${username} not found`);
@@ -155,7 +156,7 @@ export class UsersService {
         ...user, // existing fields
         ...updateUserDto, // updated fields
       });
-      return this.user2readUserDto(resultUser);
+      return user2readUserDto(resultUser);
     } else {
       this.logger.error(
         `Update not executed as user with id ${id} does not exist`,
@@ -204,22 +205,5 @@ export class UsersService {
       this.logger.error(`User e-mail already taken`);
       throw new Error(`User e-mail already taken`);
     }
-  }
-
-  private user2readUserDto(user: User): ReadUserDto {
-    const roles: Array<RoleEnum> = [];
-    user.roles.forEach((role: Role) => {
-      roles.push(<RoleEnum>role.role);
-    });
-
-    const foundUser: ReadUserDto = {
-      id: user.id,
-      username: user.username,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      email: user.email,
-      roles: roles,
-    };
-    return foundUser;
   }
 }
