@@ -1,17 +1,17 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { user_1 } from '../users/users.testdata';
-import { User } from '../users/entities/user.entity';
-import { UserRepositoryMock } from '../users/users.repository.mock';
-import { UsersService } from '../users/users.service';
-import { AuthService } from './auth.service';
-import { ReadUserDto } from '../users/dto/read-user.dto';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
+import { Test, TestingModule } from '@nestjs/testing';
+import { getRepositoryToken } from '@nestjs/typeorm';
 import { jwtConfiguration } from '../config/authConfiguration';
-import { user2readUserDto } from '../users/dto/user.dto.helpers';
 import { Role } from '../roles/entities/role.entity';
 import { RoleRepositoryMock } from '../roles/roles.repository.mock';
+import { ReadUserDto } from '../users/dto/read-user.dto';
+import { user2readUserDto } from '../users/dto/user.dto.helpers';
+import { User } from '../users/entities/user.entity';
+import { userRepositoryMockFactory } from '../users/user.respository.mock.factory';
+import { UsersService } from '../users/users.service';
+import { user_1 } from '../users/users.testdata';
+import { AuthService } from './auth.service';
 
 describe('AuthService', () => {
   let authService: AuthService;
@@ -32,7 +32,7 @@ describe('AuthService', () => {
         UsersService,
         {
           provide: getRepositoryToken(User),
-          useClass: UserRepositoryMock,
+          useFactory: userRepositoryMockFactory,
         },
         {
           provide: getRepositoryToken(Role),

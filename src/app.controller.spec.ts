@@ -7,7 +7,7 @@ import { jwtConfiguration } from './config/authConfiguration';
 import { Role } from './roles/entities/role.entity';
 import { RoleRepositoryMock } from './roles/roles.repository.mock';
 import { User } from './users/entities/user.entity';
-import { UserRepositoryMock } from './users/users.repository.mock';
+import { userRepositoryMockFactory } from './users/user.respository.mock.factory';
 import { UsersService } from './users/users.service';
 
 describe('AppController', () => {
@@ -28,7 +28,7 @@ describe('AppController', () => {
         UsersService,
         {
           provide: getRepositoryToken(User),
-          useClass: UserRepositoryMock,
+          useFactory: userRepositoryMockFactory,
         },
         {
           provide: getRepositoryToken(Role),
@@ -48,6 +48,6 @@ describe('AppController', () => {
   });
 
   describe('login', () => {
-    xit('should be return access  token', () => {});
+    xit('should be return access  token', () => { });
   });
 });

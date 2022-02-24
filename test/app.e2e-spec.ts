@@ -11,8 +11,9 @@ import { RoleEnum } from '../src/roles/roles.enum';
 import { RoleRepositoryMock } from '../src/roles/roles.repository.mock';
 import { ReadUserDto } from '../src/users/dto/read-user.dto';
 import { UpdateUserDto } from '../src/users/dto/update-user.dto';
+import { user2readUserDto } from '../src/users/dto/user.dto.helpers';
 import { User } from '../src/users/entities/user.entity';
-import { UserRepositoryMock } from '../src/users/users.repository.mock';
+import { userRepositoryMockFactory } from '../src/users/user.respository.mock.factory';
 import { UsersService } from '../src/users/users.service';
 import { AppModule } from './../src/app.module';
 import {
@@ -21,7 +22,6 @@ import {
   initialUserRepository,
   user_1
 } from './../src/users/users.testdata';
-import { user2readUserDto } from '../src/users/dto/user.dto.helpers';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
@@ -43,7 +43,7 @@ describe('AppController (e2e)', () => {
         UsersService,
         {
           provide: getRepositoryToken(User),
-          useClass: UserRepositoryMock,
+          useFactory: userRepositoryMockFactory,
         },
         {
           provide: getRepositoryToken(Role),
@@ -113,7 +113,11 @@ describe('AppController (e2e)', () => {
   });
   describe('/users (Get)', () => {
     it('should get all the users', async () => {
-      const accessToken = await login(authService, app, user2readUserDto(admin));
+      const accessToken = await login(
+        authService,
+        app,
+        user2readUserDto(admin),
+      );
 
       const resp = await request(app.getHttpServer())
         .get('/users')
@@ -131,7 +135,11 @@ describe('AppController (e2e)', () => {
     });
 
     it('should only accept calls from users without admin role', async () => {
-      const accessToken = await login(authService, app, user2readUserDto(user_1));
+      const accessToken = await login(
+        authService,
+        app,
+        user2readUserDto(user_1),
+      );
       const resp = await request(app.getHttpServer())
         .get('/users')
         .set('Authorization', `Bearer ${accessToken}`);
@@ -148,7 +156,11 @@ describe('AppController (e2e)', () => {
 
   describe('/users/1 (Get)', () => {
     it('should get user with ID 1', async () => {
-      const accessToken = await login(authService, app, user2readUserDto(admin));
+      const accessToken = await login(
+        authService,
+        app,
+        user2readUserDto(admin),
+      );
 
       const resp = await request(app.getHttpServer())
         .get('/users/1')
@@ -162,9 +174,12 @@ describe('AppController (e2e)', () => {
       expect(resp.body.password).toBeUndefined();
     });
 
-
     it('should only accept calls from users without admin role', async () => {
-      const accessToken = await login(authService, app, user2readUserDto(user_1));
+      const accessToken = await login(
+        authService,
+        app,
+        user2readUserDto(user_1),
+      );
 
       const resp = await request(app.getHttpServer())
         .get('/users/1')
@@ -182,7 +197,11 @@ describe('AppController (e2e)', () => {
 
   describe('/users/byEMail (Get)', () => {
     it('should get user with e-mail address', async () => {
-      const accessToken = await login(authService, app, user2readUserDto(admin));
+      const accessToken = await login(
+        authService,
+        app,
+        user2readUserDto(admin),
+      );
 
       const resp = await request(app.getHttpServer())
         .get(`/users/byEMail/?email=${initialUserRepository[0].email}`)
@@ -197,7 +216,11 @@ describe('AppController (e2e)', () => {
     });
 
     it('should only accept calls from users without admin role', async () => {
-      const accessToken = await login(authService, app, user2readUserDto(user_1));
+      const accessToken = await login(
+        authService,
+        app,
+        user2readUserDto(user_1),
+      );
 
       const resp = await request(app.getHttpServer())
         .get(`/users/byEMail/?email=${initialUserRepository[0].email}`)
@@ -217,7 +240,11 @@ describe('AppController (e2e)', () => {
 
   describe('/users/1 (Patch)', () => {
     it('should update user with ID 1', async () => {
-      const accessToken = await login(authService, app, user2readUserDto(admin));
+      const accessToken = await login(
+        authService,
+        app,
+        user2readUserDto(admin),
+      );
 
       const updateUserResponse = await request(app.getHttpServer())
         .post('/users')
@@ -250,7 +277,11 @@ describe('AppController (e2e)', () => {
     });
 
     it('should only accept calls from users without admin role', async () => {
-      const accessToken = await login(authService, app, user2readUserDto(user_1));
+      const accessToken = await login(
+        authService,
+        app,
+        user2readUserDto(user_1),
+      );
 
       const updateUserDto: UpdateUserDto = {
         firstName: 'updated',
@@ -283,7 +314,11 @@ describe('AppController (e2e)', () => {
 
   describe('/users/1 (Delete)', () => {
     it('should delete user with ID 1', async () => {
-      const accessToken = await login(authService, app, user2readUserDto(admin));
+      const accessToken = await login(
+        authService,
+        app,
+        user2readUserDto(admin),
+      );
 
       const createUserResponse = await request(app.getHttpServer())
         .post('/users')
@@ -305,7 +340,11 @@ describe('AppController (e2e)', () => {
     });
 
     it('should only accept calls from users without admin role', async () => {
-      const accessToken = await login(authService, app, user2readUserDto(user_1));
+      const accessToken = await login(
+        authService,
+        app,
+        user2readUserDto(user_1),
+      );
 
       const resp = await request(app.getHttpServer())
         .delete(`/users/1`)
@@ -315,8 +354,7 @@ describe('AppController (e2e)', () => {
     });
 
     it('should only accept calls with access token', async () => {
-      const resp = await request(app.getHttpServer())
-        .delete(`/users/1`);
+      const resp = await request(app.getHttpServer()).delete(`/users/1`);
 
       expect(resp.statusCode).toBe(HttpStatus.UNAUTHORIZED);
     });

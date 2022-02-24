@@ -1,15 +1,15 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { user2createUserDto, user2readUserDto } from './dto/user.dto.helpers';
 import { Role } from '../roles/entities/role.entity';
 import { RoleRepositoryMock } from '../roles/roles.repository.mock';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ReadUserDto } from './dto/read-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { user2createUserDto, user2readUserDto } from './dto/user.dto.helpers';
 import { User } from './entities/user.entity';
+import { userRepositoryMockFactory } from './user.respository.mock.factory';
 import { UsersController } from './users.controller';
-import { UserRepositoryMock } from './users.repository.mock';
 import { UsersService } from './users.service';
 import { addUser_1, initialUserRepository, user_1 } from './users.testdata';
 
@@ -24,7 +24,7 @@ describe('UsersController', () => {
         UsersService,
         {
           provide: getRepositoryToken(User),
-          useClass: UserRepositoryMock,
+          useFactory: userRepositoryMockFactory,
         },
         {
           provide: getRepositoryToken(Role),

@@ -98,9 +98,7 @@ export class UsersService {
 
   async findByID(id: number): Promise<ReadUserDto> {
     this.logger.log(`findOne: id = ${id}`);
-    const user: User = await this.usersRepository.findOne({
-      where: { id: id },
-    });
+    const user: User = (await this.usersRepository.findByIds([id]))[0];
 
     if (user !== undefined) {
       return user2readUserDto(user);
