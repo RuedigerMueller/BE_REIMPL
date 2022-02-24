@@ -46,8 +46,4 @@ describe('AppController', () => {
       expect(appController).toBeDefined();
     });
   });
-
-  describe('login', () => {
-    xit('should be return access  token', () => { });
-  });
 });

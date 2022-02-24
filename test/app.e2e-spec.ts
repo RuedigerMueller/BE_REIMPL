@@ -20,7 +20,7 @@ import {
   addUser_1,
   admin,
   initialUserRepository,
-  user_1
+  user_1,
 } from './../src/users/users.testdata';
 
 describe('AppController (e2e)', () => {

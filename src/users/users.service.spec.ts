@@ -9,15 +9,13 @@ import { ReadUserDto } from './dto/read-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { user2createUserDto, user2readUserDto } from './dto/user.dto.helpers';
 import { User } from './entities/user.entity';
-import {
-  userRepositoryMockFactory
-} from './user.respository.mock.factory';
+import { userRepositoryMockFactory } from './user.respository.mock.factory';
 import { UsersService } from './users.service';
 import {
   addUser_1,
   addUser_2,
   initialUserRepository,
-  user_1
+  user_1,
 } from './users.testdata';
 
 describe('UsersService', () => {
