@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { DeleteResult, Repository } from 'typeorm';
-import { MockType } from '../../test/mock.type';
+import { MockType } from '../../test/helper/mock.type';
 import { Role } from '../roles/entities/role.entity';
 import { roleRepositoryMockFactory } from '../../test/roles/roles.repository.mock.factory';
 import { CreateUserDto } from './dto/create-user.dto';

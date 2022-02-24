@@ -1,5 +1,5 @@
 import { Repository } from 'typeorm';
-import { MockType } from '../mock.type';
+import { MockType } from '../helper/mock.type';
 
 export const roleRepositoryMockFactory: () => MockType<Repository<any>> =
   jest.fn(() => ({
