@@ -8,12 +8,12 @@ import { AuthService } from '../src/auth/auth.service';
 import { jwtConfiguration } from '../src/config/authConfiguration';
 import { Role } from '../src/roles/entities/role.entity';
 import { RoleEnum } from '../src/roles/roles.enum';
-import { roleRepositoryMockFactory } from '../src/roles/roles.repository.mock.factory';
+import { roleRepositoryMockFactory } from './roles/roles.repository.mock.factory';
 import { ReadUserDto } from '../src/users/dto/read-user.dto';
 import { UpdateUserDto } from '../src/users/dto/update-user.dto';
 import { user2readUserDto } from '../src/users/dto/user.dto.helpers';
 import { User } from '../src/users/entities/user.entity';
-import { userRepositoryMockFactory } from '../src/users/user.respository.mock.factory';
+import { userRepositoryMockFactory } from './users/user.respository.mock.factory';
 import { UsersService } from '../src/users/users.service';
 import { AppModule } from './../src/app.module';
 import {
@@ -21,7 +21,7 @@ import {
   admin,
   initialUserRepository,
   user_1,
-} from './../src/users/users.testdata';
+} from './users/users.testdata';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;

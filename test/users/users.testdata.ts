@@ -6,7 +6,7 @@ import {
   userRole_5,
   userRole_6,
 } from '../roles/roles.testdata';
-import { User } from './entities/user.entity';
+import { User } from '../../src/users/entities/user.entity';
 
 export const initialUserRepository: Array<User> = [
   // clear text password is 'changeme'

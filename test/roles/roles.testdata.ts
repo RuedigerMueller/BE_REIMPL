@@ -6,8 +6,8 @@ import {
   user_2,
   user_3,
 } from '../users/users.testdata';
-import { Role } from './entities/role.entity';
-import { RoleEnum } from './roles.enum';
+import { Role } from '../../src/roles/entities/role.entity';
+import { RoleEnum } from '../../src/roles/roles.enum';
 
 export const adminRole: Array<Role> = [
   { id: 1, role: RoleEnum.Admin, user: admin },

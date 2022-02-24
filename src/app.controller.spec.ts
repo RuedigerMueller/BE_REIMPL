@@ -5,9 +5,9 @@ import { AppController } from './app.controller';
 import { AuthService } from './auth/auth.service';
 import { jwtConfiguration } from './config/authConfiguration';
 import { Role } from './roles/entities/role.entity';
-import { roleRepositoryMockFactory } from './roles/roles.repository.mock.factory';
+import { roleRepositoryMockFactory } from '../test/roles/roles.repository.mock.factory';
 import { User } from './users/entities/user.entity';
-import { userRepositoryMockFactory } from './users/user.respository.mock.factory';
+import { userRepositoryMockFactory } from '../test/users/user.respository.mock.factory';
 import { UsersService } from './users/users.service';
 
 describe('AppController', () => {
