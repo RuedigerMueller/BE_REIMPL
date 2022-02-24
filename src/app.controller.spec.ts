@@ -5,7 +5,7 @@ import { AppController } from './app.controller';
 import { AuthService } from './auth/auth.service';
 import { jwtConfiguration } from './config/authConfiguration';
 import { Role } from './roles/entities/role.entity';
-import { RoleRepositoryMock } from './roles/roles.repository.mock';
+import { roleRepositoryMockFactory } from './roles/roles.repository.mock.factory';
 import { User } from './users/entities/user.entity';
 import { userRepositoryMockFactory } from './users/user.respository.mock.factory';
 import { UsersService } from './users/users.service';
@@ -32,7 +32,7 @@ describe('AppController', () => {
         },
         {
           provide: getRepositoryToken(Role),
-          useClass: RoleRepositoryMock,
+          useFactory: roleRepositoryMockFactory,
         },
       ],
     }).compile();

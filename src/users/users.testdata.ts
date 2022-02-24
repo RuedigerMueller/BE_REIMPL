@@ -1,5 +1,5 @@
 import { Role } from '../roles/entities/role.entity';
-import { RoleEnum } from '../roles/roles.enum';
+import { adminRoles, userRoles } from '../roles/roles.testdata';
 import { User } from './entities/user.entity';
 
 function createUser(
@@ -24,19 +24,7 @@ function createUser(
 
 export let initialUserRepository: ReadonlyArray<User> = [];
 
-const userRole: Role = new Role();
-userRole.id = 1;
-userRole.role = RoleEnum.User;
 
-const userRoles: Array<Role> = [];
-userRoles.push(userRole);
-
-const adminRole: Role = new Role();
-adminRole.id = 2;
-adminRole.role = RoleEnum.Admin;
-const adminRoles: Array<Role> = [];
-adminRoles.push(adminRole);
-adminRoles.push(userRole);
 
 initialUserRepository = initialUserRepository.concat(
   // plaintext password changeme

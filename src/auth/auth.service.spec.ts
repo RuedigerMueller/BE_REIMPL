@@ -4,7 +4,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { jwtConfiguration } from '../config/authConfiguration';
 import { Role } from '../roles/entities/role.entity';
-import { RoleRepositoryMock } from '../roles/roles.repository.mock';
+import { roleRepositoryMockFactory } from '../roles/roles.repository.mock.factory';
 import { ReadUserDto } from '../users/dto/read-user.dto';
 import { user2readUserDto } from '../users/dto/user.dto.helpers';
 import { User } from '../users/entities/user.entity';
@@ -36,7 +36,7 @@ describe('AuthService', () => {
         },
         {
           provide: getRepositoryToken(Role),
-          useClass: RoleRepositoryMock,
+          useFactory: roleRepositoryMockFactory,
         },
       ],
     }).compile();

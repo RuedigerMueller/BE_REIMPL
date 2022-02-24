@@ -2,7 +2,7 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Role } from '../roles/entities/role.entity';
-import { RoleRepositoryMock } from '../roles/roles.repository.mock';
+import { roleRepositoryMockFactory } from '../roles/roles.repository.mock.factory';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ReadUserDto } from './dto/read-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -28,7 +28,7 @@ describe('UsersController', () => {
         },
         {
           provide: getRepositoryToken(Role),
-          useClass: RoleRepositoryMock,
+          useFactory: roleRepositoryMockFactory,
         },
       ],
     }).compile();
