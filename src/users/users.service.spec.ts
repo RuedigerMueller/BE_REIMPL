@@ -160,7 +160,7 @@ describe('UsersService', () => {
 
   describe('update', () => {
     it('should update a user with ID', async () => {
-      const update: string = 'Updated';
+      const update = 'Updated';
       const dummyUser: User = {
         ...user_1,
         firstName: update,

@@ -29,7 +29,8 @@ export class UsersService {
     createUserDto: CreateUserDto,
     admin?: boolean,
   ): Promise<ReadUserDto> {
-    const { password, ...userWithoutPassword } = createUserDto;
+    // eslint-disable-next-line
+    const { password, ...userWithoutPassword } = createUserDto; 
     this.logger.log(`createUserDto = ${JSON.stringify(userWithoutPassword)}`);
 
     // check if all required data was provided

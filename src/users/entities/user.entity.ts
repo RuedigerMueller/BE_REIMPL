@@ -29,7 +29,7 @@ export class User {
   @Column()
   email: string;
 
-  @OneToMany((type) => Role, (role) => role.user, {
+  @OneToMany(() => Role, (role) => role.user, {
     eager: true,
   })
   @JoinTable()
