@@ -8,7 +8,7 @@ import { AuthService } from '../src/auth/auth.service';
 import { jwtConfiguration } from '../src/config/authConfiguration';
 import { Role } from '../src/roles/entities/role.entity';
 import { RoleEnum } from '../src/roles/roles.enum';
-import { RoleRepositoryMock } from '../src/roles/roles.repository.mock';
+import { roleRepositoryMockFactory } from '../src/roles/roles.repository.mock.factory';
 import { ReadUserDto } from '../src/users/dto/read-user.dto';
 import { UpdateUserDto } from '../src/users/dto/update-user.dto';
 import { user2readUserDto } from '../src/users/dto/user.dto.helpers';
@@ -47,7 +47,7 @@ describe('AppController (e2e)', () => {
         },
         {
           provide: getRepositoryToken(Role),
-          useClass: RoleRepositoryMock,
+          useFactory: roleRepositoryMockFactory,
         },
       ],
     }).compile();

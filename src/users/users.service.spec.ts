@@ -1,28 +1,29 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { user2createUserDto, user2readUserDto } from './dto/user.dto.helpers';
+import { DeleteResult, Repository } from 'typeorm';
+import { MockType } from '../../test/mock.type';
 import { Role } from '../roles/entities/role.entity';
-import { RoleRepositoryMock } from '../roles/roles.repository.mock';
+import { roleRepositoryMockFactory } from '../roles/roles.repository.mock.factory';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ReadUserDto } from './dto/read-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { user2createUserDto, user2readUserDto } from './dto/user.dto.helpers';
 import { User } from './entities/user.entity';
+import {
+  userRepositoryMockFactory
+} from './user.respository.mock.factory';
 import { UsersService } from './users.service';
 import {
   addUser_1,
   addUser_2,
   initialUserRepository,
-  user_1,
+  user_1
 } from './users.testdata';
-import {
-  MockType,
-  userRepositoryMockFactory,
-} from './user.respository.mock.factory';
-import { DeleteResult, Repository } from 'typeorm';
 
 describe('UsersService', () => {
   let userService: UsersService;
   let userRepositoryMock: MockType<Repository<User>>;
+  let roleRepositoryMock: MockType<Repository<Role>>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -32,19 +33,16 @@ describe('UsersService', () => {
           provide: getRepositoryToken(User),
           useFactory: userRepositoryMockFactory,
         },
-        /* {
-          provide: getRepositoryToken(User),
-          useClass: UserRepositoryMock,
-        }, */
         {
           provide: getRepositoryToken(Role),
-          useClass: RoleRepositoryMock,
+          useFactory: roleRepositoryMockFactory,
         },
       ],
     }).compile();
 
     userService = module.get<UsersService>(UsersService);
     userRepositoryMock = module.get(getRepositoryToken(User));
+    roleRepositoryMock = module.get(getRepositoryToken(Role));
   });
 
   it('should be defined', () => {
@@ -58,6 +56,7 @@ describe('UsersService', () => {
       userRepositoryMock.findOne.mockReturnValue(undefined);
       userRepositoryMock.save.mockReturnValue(addUser_1);
       userRepositoryMock.findByIds.mockReturnValue([addUser_1]);
+      roleRepositoryMock.save.mockReturnValue(true);
 
       await userService.create(createUserDto);
 
