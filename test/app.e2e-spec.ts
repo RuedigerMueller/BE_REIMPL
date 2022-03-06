@@ -240,6 +240,8 @@ describe('AppController (e2e)', () => {
 
   describe('/users/1 (Patch)', () => {
     it('should update user with ID 1', async () => {
+      const update: string = 'update';
+
       const accessToken = await login(
         authService,
         app,
@@ -258,9 +260,10 @@ describe('AppController (e2e)', () => {
         .set('Authorization', `Bearer ${accessToken}`);
 
       const updateUserDto: UpdateUserDto = {
-        firstName: 'updated',
-        lastName: 'updated',
-        password: 'update',
+        firstName: update,
+        lastName: update,
+        password: update,
+        email: update,
       };
 
       const resp = await request(app.getHttpServer())
@@ -270,13 +273,14 @@ describe('AppController (e2e)', () => {
 
       expect(resp.statusCode).toBe(HttpStatus.OK);
       expect(resp.body.username).toBe(addUser_1.username);
-      expect(resp.body.firstName).toBe('updated');
-      expect(resp.body.lastName).toBe('updated');
-      expect(resp.body.email).toBe(addUser_1.email);
+      expect(resp.body.firstName).toBe(update);
+      expect(resp.body.lastName).toBe(update);
+      expect(resp.body.email).toBe(update);
       expect(resp.body.password).toBeUndefined();
     });
 
     it('should only accept calls from users without admin role', async () => {
+      const update: string = 'update';
       const accessToken = await login(
         authService,
         app,
@@ -284,9 +288,10 @@ describe('AppController (e2e)', () => {
       );
 
       const updateUserDto: UpdateUserDto = {
-        firstName: 'updated',
-        lastName: 'updated',
-        password: 'update',
+        firstName: update,
+        lastName: update,
+        password: update,
+        email: update,
       };
 
       const resp = await request(app.getHttpServer())
@@ -298,10 +303,12 @@ describe('AppController (e2e)', () => {
     });
 
     it('should only accept calls with access token', async () => {
+      const update: string = 'update';
       const updateUserDto: UpdateUserDto = {
-        firstName: 'updated',
-        lastName: 'updated',
-        password: 'update',
+        firstName: update,
+        lastName: update,
+        password: update,
+        email: update,
       };
 
       const resp = await request(app.getHttpServer())

@@ -184,11 +184,13 @@ describe('UsersController', () => {
 
   describe('update', () => {
     it('should call update method of UsersService', async () => {
+      const update: string = 'update';
       const expected_user: ReadUserDto = user2readUserDto(user_1);
       const userDto: UpdateUserDto = {
-        firstName: 'Updated',
-        lastName: 'Updated',
-        password: 'Updated',
+        password: update,
+        firstName: update,
+        lastName: update,
+        email: update,
       };
       const spy = jest
         .spyOn(usersService, 'update')
@@ -203,10 +205,12 @@ describe('UsersController', () => {
     });
 
     it('should return an HTTP exception if the user ID does not exist', async () => {
+      const update: string = 'update';
       const userDto: UpdateUserDto = {
-        firstName: 'Updated',
-        lastName: 'Updated',
-        password: 'Updated',
+        firstName: update,
+        lastName: update,
+        password: update,
+        email: update,
       };
       const errorMessage = 'No user to update';
       const spy = jest.spyOn(usersService, 'update').mockImplementation(() => {

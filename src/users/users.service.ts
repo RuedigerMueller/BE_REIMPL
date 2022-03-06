@@ -23,14 +23,14 @@ export class UsersService {
     private usersRepository: Repository<User>,
     @InjectRepository(Role)
     private roleRepostitory: Repository<Role>,
-  ) {}
+  ) { }
 
   async create(
     createUserDto: CreateUserDto,
     admin?: boolean,
   ): Promise<ReadUserDto> {
     // eslint-disable-next-line
-    const { password, ...userWithoutPassword } = createUserDto; 
+    const { password, ...userWithoutPassword } = createUserDto;
     this.logger.log(`createUserDto = ${JSON.stringify(userWithoutPassword)}`);
 
     // check if all required data was provided
@@ -166,6 +166,7 @@ export class UsersService {
     }
   }
 
+
   async remove(id: number): Promise<void> {
     this.logger.log(`remove: id = ${id}`);
 
@@ -177,6 +178,58 @@ export class UsersService {
       throw new Error(`User with ID ${id} was not deleted`);
     }
   }
+
+  async addRole(id: number, role: RoleEnum): Promise<ReadUserDto> {
+    const user: User = (await this.usersRepository.findByIds([id]))[0];
+    if (user !== undefined) {
+      const userRole: Partial<Role> = {
+        role: role,
+        user: user,
+      };
+      await this.roleRepostitory.save(userRole);
+
+      const updatedUser: User = await this.usersRepository.findOne({
+        where: { id: id },
+      });
+
+      return user2readUserDto(updatedUser);
+    } else {
+      this.logger.error(
+        `Adding role not possible, user with ID ${id} does not exist`,
+      );
+      throw new Error(
+        `Adding role not possible, user with ID ${id} does not exist`,
+      );
+    }
+  }
+
+  async removeRole(id: number, role: RoleEnum): Promise<ReadUserDto> {
+    const user: User = (await this.usersRepository.findByIds([id]))[0];
+    if (user !== undefined) {
+      const role2remove: Role = (await this.roleRepostitory.findOne({
+        where: {
+          user,
+          role,
+        },
+      }));
+
+      await this.roleRepostitory.delete(role2remove.id);
+
+      const updatedUser: User = await this.usersRepository.findOne({
+        where: { id: id },
+      });
+
+      return user2readUserDto(updatedUser);
+    } else {
+      this.logger.error(
+        `Removing role not possible, user with ID ${id} does not exist`,
+      );
+      throw new Error(
+        `Removing role not possible, user with ID ${id} does not exist`,
+      );
+    }
+  }
+
 
   private async checkCreateDataValid(
     createUserDto: CreateUserDto,

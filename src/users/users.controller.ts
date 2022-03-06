@@ -9,6 +9,7 @@ import {
   InternalServerErrorException,
   NotFoundException,
   Param,
+  ParseEnumPipe,
   ParseIntPipe,
   Patch,
   Post,
@@ -88,6 +89,26 @@ export class UsersController {
       return await this.usersService.remove(id);
     } catch (e) {
       throw new HttpException(e.message, HttpStatus.NO_CONTENT);
+    }
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Post(':id/addRole/:role')
+  async addRole(@Param('id', ParseIntPipe) id: number, @Param('role',new ParseEnumPipe(RoleEnum)) role: RoleEnum): Promise<ReadUserDto> {
+    try {
+      return await this.usersService.addRole(id, role);
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Post(':id/removeRole/:role')
+  async removeRole(@Param('id', ParseIntPipe) id: number, @Param('role', new ParseEnumPipe(RoleEnum)) role: RoleEnum): Promise<ReadUserDto> {
+    try {
+      return await this.usersService.removeRole(id, role);
+    } catch (e) {
+      throw new BadRequestException(e.message);
     }
   }
 }

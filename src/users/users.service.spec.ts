@@ -14,9 +14,12 @@ import { UsersService } from './users.service';
 import {
   addUser_1,
   addUser_2,
+  admin,
   initialUserRepository,
   user_1,
 } from '../../test/users/users.testdata';
+import exp from 'constants';
+import { RoleEnum } from '../roles/roles.enum';
 
 describe('UsersService', () => {
   let userService: UsersService;
@@ -166,6 +169,7 @@ describe('UsersService', () => {
         firstName: update,
         lastName: update,
         password: update,
+        email: update,
       };
 
       userRepositoryMock.save.mockReturnValue(dummyUser);
@@ -174,11 +178,13 @@ describe('UsersService', () => {
       const expected_user: ReadUserDto = user2readUserDto(user_1);
       expected_user.firstName = update;
       expected_user.lastName = update;
+      expected_user.email = update;
 
       const userDto: UpdateUserDto = {
         firstName: update,
         lastName: update,
         password: update,
+        email: update,
       };
       expect(await userService.update(user_1.id, userDto)).toEqual(
         expected_user,
@@ -191,6 +197,7 @@ describe('UsersService', () => {
         firstName: 'Updated',
         lastName: 'Updated',
         password: 'Updated',
+        email: 'Updated',
       };
       await expect(userService.update(4711, userDto)).rejects.toThrow();
     });
@@ -234,6 +241,78 @@ describe('UsersService', () => {
       expect(
         await userService.validateUser(user_1.username, 'wrongpassword'),
       ).toEqual(undefined);
+    });
+  });
+
+  describe('addRole', () => {
+    it('should return a user with the added role', async () => {
+      const addRole: Role = {
+        id: 4711,
+        role: RoleEnum.Admin,
+        user: user_1,
+      }
+      const updatedUser: User = {
+        ...user_1
+      }
+      updatedUser.roles.push(addRole);
+      const expected_user: ReadUserDto = user2readUserDto(updatedUser);
+      userRepositoryMock.findByIds.mockReturnValue([user_1]);
+      userRepositoryMock.findOne.mockReturnValue(updatedUser);
+      roleRepositoryMock.save.mockReturnValue(true);
+
+      expect(await userService.addRole(user_1.id, RoleEnum.Admin)).toEqual(expected_user);
+    })
+
+    it('should not add a role if the user does not exist', async () => {
+      const addRole: Role = {
+        id: 4711,
+        role: RoleEnum.Admin,
+        user: user_1,
+      }
+      const updatedUser: User = {
+        ...user_1
+      }
+      updatedUser.roles.push(addRole);
+
+      userRepositoryMock.findByIds.mockReturnValue(undefined);
+
+      await expect(userService.addRole(4711, RoleEnum.Admin)).rejects.toThrow();
+    });
+  });
+
+  describe('removeRole', () => {
+    it('should return a user without the removed role', async () => {
+      const updatedUser: User = {
+        ...admin
+      }
+      const key: Role = updatedUser.roles.find(e => e.role === RoleEnum.Admin)
+      const index = updatedUser.roles.indexOf(key, 0);
+      if (index > -1) {
+        updatedUser.roles.splice(index, 1);
+      }
+      const adminRole: Role = {
+        id: 4711,
+        role: RoleEnum.Admin,
+        user: admin,
+      }
+      userRepositoryMock.findByIds.mockReturnValue(undefined);
+      
+      await expect(userService.removeRole(4711, RoleEnum.Admin)).rejects.toThrow();
+    })
+
+    it('should not remobve a role if the user does not exist', async () => {
+      userRepositoryMock.findByIds.mockReturnValue(undefined);
+      const addRole: Role = {
+        id: 4711,
+        role: RoleEnum.Admin,
+        user: user_1,
+      }
+      const updatedUser: User = {
+        ...user_1
+      }
+      updatedUser.roles.push(addRole);
+
+      await expect(userService.addRole(4711, RoleEnum.Admin)).rejects.toThrow();
     });
   });
 });
