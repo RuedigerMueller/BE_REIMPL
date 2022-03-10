@@ -9,7 +9,8 @@ import { UsersService } from './users/users.service';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.use(helmet());
-
+  app.enableCors();
+  
   const config = new DocumentBuilder()
     .setTitle('Users')
     .setDescription('The users API description')
@@ -35,6 +36,6 @@ async function bootstrap() {
     );
   }
 
-  await app.listen(3000);
+  await app.listen(3001);
 }
 bootstrap();
