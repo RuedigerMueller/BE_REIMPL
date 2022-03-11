@@ -77,12 +77,16 @@ export class UsersService {
     const user: User = await this.usersRepository.findOne({
       where: { username: username },
     });
-    if (await bcrypt.compare(password, user.password)) {
-      this.logger.log(`user validation successful`);
-      return user2readUserDto(user);
+    if (user) {
+      if (await bcrypt.compare(password, user.password)) {
+        this.logger.log(`user validation successful`);
+        return user2readUserDto(user);
+      } else {
+        this.logger.warn(`user validation NOT successful`);
+        return undefined;
+      }
     } else {
-      this.logger.warn(`user validation NOT successful`);
-      return undefined;
+      return undefined
     }
   }
 
