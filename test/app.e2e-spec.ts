@@ -342,7 +342,7 @@ describe('AppController (e2e)', () => {
         .delete(`/users/${createUserResponse.body.id}`)
         .set('Authorization', `Bearer ${accessToken}`);
 
-      expect(resp.statusCode).toBe(HttpStatus.NO_CONTENT);
+      expect(resp.statusCode).toBe(HttpStatus.OK);
       expect(resp.body).toStrictEqual({});
     });
 
