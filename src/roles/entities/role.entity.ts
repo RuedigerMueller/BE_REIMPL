@@ -11,6 +11,6 @@ export class Role {
   @Column()
   role: string;
 
-  @ManyToOne(() => User, (user) => user.roles)
+  @ManyToOne(() => User, (user) => user.roles, { onDelete: 'CASCADE' })
   user: User;
 }

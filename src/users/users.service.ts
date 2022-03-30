@@ -23,7 +23,7 @@ export class UsersService {
     private usersRepository: Repository<User>,
     @InjectRepository(Role)
     private roleRepostitory: Repository<Role>,
-  ) { }
+  ) {}
 
   async create(
     createUserDto: CreateUserDto,
@@ -86,7 +86,7 @@ export class UsersService {
         return undefined;
       }
     } else {
-      return undefined
+      return undefined;
     }
   }
 
@@ -170,7 +170,6 @@ export class UsersService {
     }
   }
 
-
   async remove(id: number): Promise<void> {
     this.logger.log(`remove: id = ${id}`);
 
@@ -210,12 +209,12 @@ export class UsersService {
   async removeRole(id: number, role: RoleEnum): Promise<ReadUserDto> {
     const user: User = (await this.usersRepository.findByIds([id]))[0];
     if (user !== undefined) {
-      const role2remove: Role = (await this.roleRepostitory.findOne({
+      const role2remove: Role = await this.roleRepostitory.findOne({
         where: {
           user,
           role,
         },
-      }));
+      });
 
       await this.roleRepostitory.delete(role2remove.id);
 
@@ -233,7 +232,6 @@ export class UsersService {
       );
     }
   }
-
 
   private async checkCreateDataValid(
     createUserDto: CreateUserDto,
