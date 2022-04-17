@@ -185,10 +185,19 @@ export class UsersService {
   async addRole(id: number, role: RoleEnum): Promise<ReadUserDto> {
     const user: User = (await this.usersRepository.findByIds([id]))[0];
     if (user !== undefined) {
+      const adminRole: Role | undefined = user.roles.find((role) => {
+        if (role.role === RoleEnum.Admin) {
+          this.logger.log(`User with ID ${id} is already Admin`);
+          return role;
+        }
+      });
+      if (adminRole) return user2readUserDto(user);
+
       const userRole: Partial<Role> = {
         role: role,
         user: user,
       };
+
       await this.roleRepostitory.save(userRole);
 
       const updatedUser: User = await this.usersRepository.findOne({
